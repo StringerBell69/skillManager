@@ -15,7 +15,7 @@
     "db:migrate": "bun run --filter @skillmanager/api db:migrate",
     "db:seed": "bun run --filter @skillmanager/api db:seed",
     "db:studio": "bun run --filter @skillmanager/api db:studio",
-    "publish-agents": "bun run scripts/publish-agents.ts"
+    "publish-agents": "bun run --filter @skillmanager/api publish-agents"
   },
   "devDependencies": {
     "typescript": "^5.5.0"
