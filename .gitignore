@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+api/prisma/*.db
+
+# CLI config (never commit tokens)
+.skillmanager/
+
+# Test
+coverage/
+
+# Bun
+bun.lock
+
+# Sub-repos (each has its own git)
+api/
+cli/
+shared/
+web/

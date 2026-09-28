@@ -1,0 +1,26 @@
+{
+  "name": "skillmanager",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "api",
+    "cli"
+  ],
+  "scripts": {
+    "build": "bun run --filter '*' build",
+    "lint": "bun run --filter '*' lint",
+    "test": "bun run --filter '*' test",
+    "dev:api": "bun run --filter @skillmanager/api start:dev",
+    "dev:cli": "bun run --filter @skillmanager/cli dev",
+    "db:migrate": "bun run --filter @skillmanager/api db:migrate",
+    "db:seed": "bun run --filter @skillmanager/api db:seed",
+    "db:studio": "bun run --filter @skillmanager/api db:studio",
+    "publish-agents": "bun run scripts/publish-agents.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
