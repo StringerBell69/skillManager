@@ -4,12 +4,14 @@
   "workspaces": [
     "shared",
     "api",
-    "cli"
+    "cli",
+    "web"
   ],
   "scripts": {
     "build": "bun run --filter '*' build",
     "lint": "bun run --filter '*' lint",
     "test": "bun run --filter '*' test",
+    "dev:web": "bun run --filter @skillmanager/web dev",
     "dev:api": "bun run --filter @skillmanager/api start:dev",
     "dev:cli": "bun run --filter @skillmanager/cli dev",
     "db:migrate": "bun run --filter @skillmanager/api db:migrate",
