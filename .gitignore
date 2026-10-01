@@ -32,8 +32,3 @@ coverage/
 # Bun
 bun.lock
 
-# Sub-repos (each has its own git)
-api/
-cli/
-shared/
-web/

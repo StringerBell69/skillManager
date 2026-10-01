@@ -1,0 +1,35 @@
+{
+  "name": "@skillmanager/cli",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "skillmanager": "./dist/index.js",
+    "sm": "./dist/index.js"
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/ --ext .ts"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@skillmanager/shared": "workspace:*",
+    "commander": "^12.1.0",
+    "@clack/prompts": "^0.7.0",
+    "picocolors": "^1.1.0",
+    "open": "^10.1.0",
+    "env-paths": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "eslint": "^9.0.0"
+  }
+}

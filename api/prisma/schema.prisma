@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── User (synced from Clerk via webhook) ─────────────────────
+
+model User {
+  id           String         @id @default(cuid())
+  clerkId      String         @unique
+  email        String
+  createdAt    DateTime       @default(now())
+  subscription Subscription?
+  cliTokens    CliToken[]
+  deviceAuths  DeviceAuth[]
+}
+
+// ── Subscription ─────────────────────────────────────────────
+
+enum PlanType {
+  FREE
+  PRO
+  TEAM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan               PlanType           @default(FREE)
+  status             SubscriptionStatus @default(ACTIVE)
+  provider           String?            // "stripe" | "polar" | "lemonsqueezy"
+  providerCustomerId String?
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+}
+
+// ── Device Auth (CLI login device flow) ──────────────────────
+
+enum DeviceAuthStatus {
+  PENDING
+  APPROVED
+  DENIED
+}
+
+model DeviceAuth {
+  id             String           @id @default(cuid())
+  deviceCodeHash String           // SHA-256 hash of the secret device code
+  userCode       String           @unique // Human-readable code like "ABCD-1234"
+  status         DeviceAuthStatus @default(PENDING)
+  userId         String?
+  user           User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  hostname       String?
+  expiresAt      DateTime
+  createdAt      DateTime         @default(now())
+
+  @@index([deviceCodeHash])
+  @@index([expiresAt])
+}
+
+// ── CLI Token ────────────────────────────────────────────────
+
+model CliToken {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique // SHA-256 hash of "sm_..." token
+  name       String    // hostname or custom name
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// ── Agent ────────────────────────────────────────────────────
+
+model Agent {
+  id           String         @id @default(cuid())
+  slug         String         @unique
+  name         String
+  description  String
+  kind         String         // "agent" | "skill" | "rule"
+  planRequired PlanType       @default(FREE)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  versions     AgentVersion[]
+}
+
+// ── Agent Version ────────────────────────────────────────────
+
+model AgentVersion {
+  id          String    @id @default(cuid())
+  agentId     String
+  agent       Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  version     String    // semver string
+  body        String    // markdown body
+  frontmatter Json      // full frontmatter as JSON
+  changelog   String?
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([agentId, version])
+  @@index([agentId])
+}
