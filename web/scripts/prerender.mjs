@@ -15,7 +15,8 @@ if (!/^https?:\/\/[^/]+$/.test(SITE)) {
   throw new Error("VITE_SITE_URL must be set to the public origin, e.g. https://skillmanager.dev");
 }
 
-const PUBLIC_ROUTES = ["/"];
+// Keep in sync with PRERENDERED in src/main.tsx.
+const PUBLIC_ROUTES = ["/", "/pricing"];
 const template = await fs.readFile(path.join(dist, "index.html"), "utf8");
 const { render } = await import(path.join(ssrDir, "entry-prerender.js"));
 

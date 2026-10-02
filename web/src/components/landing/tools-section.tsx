@@ -34,7 +34,7 @@ function ToolsTable() {
       role="region"
       aria-labelledby="tools-table-caption"
       tabIndex={0}
-      className="mt-12 overflow-x-auto rounded-lg border border-border bg-surface shadow-xs"
+      className="relative mt-12 overflow-x-auto rounded-lg border border-border bg-surface shadow-xs"
     >
       <table className="w-full min-w-[720px] border-collapse text-13">
         <caption id="tools-table-caption" className="sr-only">

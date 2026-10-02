@@ -1,14 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { Logo } from "@/components/brand/logo";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { CONTAINER } from "./layout";
 
+const NAV_LINK =
+  "inline-flex h-8 items-center rounded-md px-2.5 text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground";
+
+// Absolute anchors work from every public page; on the home page they only scroll.
 const SECTION_LINKS = [
-  { href: "#how-it-works", label: "How it works" },
-  { href: "#tools", label: "Tools" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#features", label: "Features" },
+  { href: "/#faq", label: "FAQ" },
 ] as const;
 
 export function SiteHeader() {
@@ -19,22 +22,37 @@ export function SiteHeader() {
           <Logo />
         </Link>
 
-        <nav aria-label="Page sections" className="hidden md:block">
+        <nav aria-label="Main" className="hidden md:block">
           <ul className="flex items-center gap-1">
-            {SECTION_LINKS.map(({ href, label }) => (
+            {SECTION_LINKS.slice(0, 2).map(({ href, label }) => (
               <li key={href}>
-                <a
-                  href={href}
-                  className="inline-flex h-8 items-center rounded-md px-2.5 text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground"
-                >
+                <a href={href} className={NAV_LINK}>
                   {label}
                 </a>
               </li>
             ))}
+            <li>
+              <NavLink to="/pricing" className={({ isActive }) => cn(NAV_LINK, isActive && "text-foreground")}>
+                Pricing
+              </NavLink>
+            </li>
+            <li>
+              <a href={SECTION_LINKS[2].href} className={NAV_LINK}>
+                {SECTION_LINKS[2].label}
+              </a>
+            </li>
           </ul>
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
+          <NavLink
+            to="/pricing"
+            className={({ isActive }) =>
+              cn(buttonVariants({ variant: "ghost", size: "sm" }), "max-sm:h-10 max-sm:px-2.5 md:hidden", isActive && "text-foreground")
+            }
+          >
+            Pricing
+          </NavLink>
           <Link to="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "max-sm:h-10 max-sm:px-2.5")}>
             Sign in
           </Link>

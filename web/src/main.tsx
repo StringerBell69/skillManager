@@ -15,8 +15,11 @@ const app = (
 
 const container = document.getElementById("root")!;
 
-// The landing page ships prerendered HTML; every other route renders on the client.
-if (container.hasChildNodes() && window.location.pathname === "/") {
+// Public pages ship prerendered HTML; every other route renders on the client.
+const PRERENDERED = new Set(["/", "/pricing"]);
+const path = window.location.pathname.replace(/(.)\/+$/, "$1");
+
+if (container.hasChildNodes() && PRERENDERED.has(path)) {
   hydrateRoot(container, app);
 } else {
   createRoot(container).render(app);
