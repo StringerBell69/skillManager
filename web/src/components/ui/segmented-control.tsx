@@ -24,7 +24,7 @@ export function SegmentedControl<T extends string>({ value, onChange, options, l
     <div
       role="radiogroup"
       aria-label={label}
-      className={cn("inline-flex rounded-lg border border-border bg-muted p-0.5", className)}
+      className={cn("inline-flex rounded-full bg-muted p-0.5", className)}
     >
       {options.map((option) => {
         const checked = option.value === value;
@@ -32,10 +32,10 @@ export function SegmentedControl<T extends string>({ value, onChange, options, l
           <label
             key={option.value}
             className={cn(
-              "relative inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md font-medium transition-[background-color,color,box-shadow] duration-150",
+              "relative inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-full font-medium transition-[background-color,color,box-shadow] duration-200",
               "has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-ring",
-              size === "sm" ? "h-7 min-w-7 px-2 text-xs" : "h-8 px-3 text-[13px]",
-              checked ? "bg-surface text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground",
+              size === "sm" ? "h-7 min-w-7 px-2.5 text-xs" : "h-8 px-3.5 text-[13px]",
+              checked ? "bg-surface text-foreground shadow-[0_1px_3px_oklch(0_0_0/0.12),0_0_0_0.5px_oklch(0_0_0/0.04)]" : "text-muted-foreground hover:text-foreground",
             )}
           >
             <input

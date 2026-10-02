@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { Code, Section, SectionHeading } from "./layout";
 
-const QUESTIONS: Array<{ question: string; answer: ReactNode }> = [
+const QUESTIONS: FaqItem[] = [
   {
     question: "Which coding tools are supported?",
     answer: (
@@ -63,26 +63,37 @@ const QUESTIONS: Array<{ question: string; answer: ReactNode }> = [
   },
 ];
 
+export interface FaqItem {
+  question: string;
+  answer: ReactNode;
+}
+
+/** Native disclosure widgets: keyboard and screen reader support come from the browser. */
+export function FaqList({ items }: { items: FaqItem[] }) {
+  return (
+    <div className="border-b border-border">
+      {items.map(({ question, answer }) => (
+        <details key={question} className="group border-t border-border">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 rounded-md py-5 text-[15px] font-medium text-foreground [&::-webkit-details-marker]:hidden">
+            {question}
+            <ChevronDown
+              className="size-4 shrink-0 text-muted-foreground transition-transform duration-150 group-open:rotate-180"
+              aria-hidden
+            />
+          </summary>
+          <div className="max-w-[64ch] pb-6 pr-10 text-sm leading-6 text-muted-foreground">{answer}</div>
+        </details>
+      ))}
+    </div>
+  );
+}
+
 export function Faq() {
   return (
     <Section id="faq" labelledBy="faq-title">
       <div className="grid gap-10 lg:grid-cols-[minmax(0,4fr)_minmax(0,8fr)] lg:gap-16">
         <SectionHeading id="faq-title" title="Common questions" />
-
-        <div className="border-b border-border">
-          {QUESTIONS.map(({ question, answer }) => (
-            <details key={question} className="group border-t border-border">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 rounded-md py-5 text-[15px] font-medium text-foreground [&::-webkit-details-marker]:hidden">
-                {question}
-                <ChevronDown
-                  className="size-4 shrink-0 text-muted-foreground transition-transform duration-150 group-open:rotate-180"
-                  aria-hidden
-                />
-              </summary>
-              <div className="max-w-[64ch] pb-6 pr-10 text-sm leading-6 text-muted-foreground">{answer}</div>
-            </details>
-          ))}
-        </div>
+        <FaqList items={QUESTIONS} />
       </div>
     </Section>
   );

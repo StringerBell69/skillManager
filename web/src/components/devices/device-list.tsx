@@ -51,7 +51,7 @@ const HEAD_CELL = "h-9 px-4 font-medium";
 /** Table layout for md and up. */
 export function DeviceTable({ devices, onRevoke }: DeviceListProps) {
   return (
-    <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface shadow-xs md:block">
+    <div className="hidden overflow-x-auto rounded-xl border border-card-edge bg-surface shadow-card md:block">
       <table className="w-full min-w-[640px] border-collapse text-left text-13">
         <caption className="sr-only">Connected devices</caption>
         <thead>
@@ -105,7 +105,7 @@ export function DeviceTable({ devices, onRevoke }: DeviceListProps) {
 /** Stacked rows below md, where four columns do not fit. */
 export function DeviceStackedList({ devices, onRevoke }: DeviceListProps) {
   return (
-    <ul className="divide-y divide-border rounded-lg border border-border bg-surface shadow-xs md:hidden">
+    <ul className="list-inset overflow-hidden rounded-xl border border-card-edge bg-surface shadow-card md:hidden">
       {devices.map((device) => (
         <li key={device.id} className="flex items-center gap-3 py-3 pl-4 pr-2">
           <div className="min-w-0 flex-1">
@@ -141,7 +141,7 @@ export function DeviceStackedList({ devices, onRevoke }: DeviceListProps) {
 /** Placeholder rows with the same height as real rows, for both layouts. */
 export function DeviceListSkeleton({ rows = 3 }: { rows?: number }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-surface shadow-xs" aria-hidden>
+    <div className="overflow-hidden rounded-xl border border-card-edge bg-surface shadow-card" aria-hidden>
       <div className="hidden h-9 items-center gap-4 border-b border-border bg-subtle px-4 md:flex">
         <Skeleton className="h-3 w-12" />
       </div>

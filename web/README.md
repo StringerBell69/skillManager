@@ -6,10 +6,10 @@ Landing page and signed-in dashboard for SkillManager. Vite, React 19, React Rou
 
 | Path | Rendering | Purpose |
 |---|---|---|
-| `/` | Prerendered at build time, hydrated | Public landing page |
+| `/`, `/pricing` | Prerendered at build time, hydrated | Public landing and pricing pages |
 | `/login/*`, `/signup/*` | Client | Clerk sign-in and sign-up |
 | `/cli?code=ABCD-2345` | Client | Approve or deny a `sm login` request |
-| `/dashboard`, `/agents`, `/devices`, `/billing` | Client, `noindex` | Signed-in app |
+| `/dashboard`, `/agents`, `/devices`, `/billing`, `/settings` | Client, `noindex` | Signed-in app (press ⌘K or Ctrl K for the command menu) |
 
 Clerk and React Query load only on the routes that need them, so the landing page ships without them.
 
@@ -36,7 +36,7 @@ bun run lint
 
 `scripts/prerender.mjs` writes into `dist/`:
 
-- `index.html`: the landing page with its head tags and markup already rendered
+- `index.html` and `pricing/index.html`: the public pages with their head tags and markup already rendered
 - `app.html`: the shell for signed-in routes (`noindex`)
 - `404.html`: the same shell for unknown paths, to be served with a 404 status
 - `robots.txt` and `sitemap.xml`

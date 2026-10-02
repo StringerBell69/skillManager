@@ -7,7 +7,7 @@ const twMerge = extendTailwindMerge({
   extend: {
     theme: {
       text: ["13"],
-      shadow: ["float"],
+      shadow: ["float", "card"],
     },
   },
 });

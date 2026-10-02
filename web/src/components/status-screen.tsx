@@ -37,7 +37,7 @@ export function StatusScreen({ title, description, tone = "neutral", icon, child
       </header>
       <main className="flex flex-1 items-start justify-center px-4 pb-16 pt-[12vh]">
         <div className="w-full max-w-[400px]">
-          <div className={cn("mb-5 flex size-10 items-center justify-center rounded-lg", TONES[tone].className)}>
+          <div className={cn("mb-5 flex size-10 items-center justify-center rounded-[12px]", TONES[tone].className)}>
             <Icon className="size-5" aria-hidden />
           </div>
           <h1 className="text-xl font-semibold tracking-tight text-foreground outline-none" tabIndex={-1} data-page-title>

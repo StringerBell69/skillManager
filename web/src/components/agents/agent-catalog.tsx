@@ -1,5 +1,6 @@
 import { useId, useRef, useState, useTransition, type ReactNode } from "react";
-import { Blocks, Search, SearchX } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { Blocks, ChevronRight, Search, SearchX } from "lucide-react";
 import type { UnlockedAgent } from "@skillmanager/shared/browser";
 import { useBilling, useCatalogAgents } from "@/hooks/useAccount";
 import { pluralize } from "@/lib/format";
@@ -12,6 +13,7 @@ import { QueryError } from "@/components/overview/query-error";
 import { AgentVersion, KindBadge, PlanRequiredBadge } from "./agent-meta";
 import { KNOWN_KINDS, isKnownKind, kindLabel, type KnownKind } from "./kinds";
 import { PlanNotice } from "./plan-notice";
+import { AgentDetailDialog } from "./agent-detail-dialog";
 
 type KindFilter = "all" | KnownKind;
 
@@ -20,11 +22,19 @@ function matchesQuery(agent: UnlockedAgent, needle: string): boolean {
   return [agent.name, agent.slug, agent.description].some((field) => field.toLowerCase().includes(needle));
 }
 
-function AgentRow({ agent }: { agent: UnlockedAgent }) {
+function AgentRow({ agent, onOpen }: { agent: UnlockedAgent; onOpen: (slug: string) => void }) {
   return (
-    <li className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-8 sm:px-5">
+    <li className="group relative flex flex-col gap-3 px-4 py-4 transition-colors duration-150 hover:bg-subtle sm:flex-row sm:items-start sm:justify-between sm:gap-8 sm:px-5">
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-foreground">{agent.name || agent.slug}</p>
+        {/* The button covers the whole row (after:inset-0) so the row is one large target. */}
+        <button
+          type="button"
+          onClick={() => onOpen(agent.slug)}
+          className="text-left text-sm font-medium text-foreground after:absolute after:inset-0 after:rounded-[inherit] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-[-2px] focus-visible:after:outline-ring"
+        >
+          {agent.name || agent.slug}
+          <span className="sr-only">, show details</span>
+        </button>
         {/* The slug is what `sm remove` takes; only repeat it when it differs from the display name. */}
         {agent.name && agent.name !== agent.slug ? (
           <p className="mt-0.5 font-mono text-xs text-faint-foreground wrap-anywhere">{agent.slug}</p>
@@ -37,6 +47,10 @@ function AgentRow({ agent }: { agent: UnlockedAgent }) {
         <KindBadge kind={agent.kind} />
         <PlanRequiredBadge plan={agent.planRequired} />
         <AgentVersion version={agent.latestVersion} className="sm:inline-block sm:min-w-16 sm:text-right" />
+        <ChevronRight
+          className="hidden size-4 text-faint-foreground transition-transform duration-150 group-hover:translate-x-0.5 sm:block"
+          aria-hidden
+        />
       </div>
     </li>
   );
@@ -48,9 +62,9 @@ function CatalogSkeleton() {
       <span className="sr-only">Loading agents…</span>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" aria-hidden>
         <Skeleton className="h-9 w-full sm:w-80" />
-        <Skeleton className="h-9 w-72 max-w-full rounded-lg" />
+        <Skeleton className="h-9 w-72 max-w-full rounded-full" />
       </div>
-      <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-surface shadow-xs" aria-hidden>
+      <ul className="mt-4 rounded-xl border border-card-edge bg-surface shadow-card list-inset [--list-inset:1rem] sm:[--list-inset:1.25rem]" aria-hidden>
         {Array.from({ length: 5 }, (_, index) => (
           <li key={index} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:justify-between sm:gap-8 sm:px-5">
             <div className="min-w-0 flex-1">
@@ -70,7 +84,7 @@ function CatalogSkeleton() {
   );
 }
 
-const EMPTY_FRAME = "rounded-lg border border-border bg-surface shadow-xs";
+const EMPTY_FRAME = "rounded-xl border border-card-edge bg-surface shadow-card";
 
 export function AgentCatalog() {
   const agents = useCatalogAgents();
@@ -83,6 +97,17 @@ export function AgentCatalog() {
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<KindFilter>("all");
   const [isFiltering, startTransition] = useTransition();
+  const [params, setParams] = useSearchParams();
+
+  // `?agent=<slug>` opens the details dialog, so the command menu and shared links can point at an item.
+  const openSlug = params.get("agent");
+  const openAgent = agents.data?.find((agent) => agent.slug === openSlug) ?? null;
+  const setOpenSlug = (slug: string | null) => {
+    const next = new URLSearchParams(params);
+    if (slug) next.set("agent", slug);
+    else next.delete("agent");
+    setParams(next, { replace: slug === null });
+  };
 
   const onSearch = (value: string) => {
     setInput(value);
@@ -139,7 +164,7 @@ export function AgentCatalog() {
               Search agents
             </label>
             <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-faint-foreground"
+              className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-faint-foreground"
               aria-hidden
             />
             <input
@@ -151,7 +176,7 @@ export function AgentCatalog() {
               placeholder="Search by name or description…"
               autoComplete="off"
               spellCheck={false}
-              className="h-9 w-full rounded-md border border-input bg-surface pl-9 pr-3 text-sm text-foreground shadow-xs"
+              className="h-9 w-full rounded-full border border-input bg-surface pl-10 pr-4 text-sm text-foreground shadow-xs"
             />
           </div>
           <div className="-m-1 max-w-[calc(100%+0.5rem)] overflow-x-auto p-1 sm:shrink-0">
@@ -179,12 +204,12 @@ export function AgentCatalog() {
         {visible.length > 0 ? (
           <ul
             className={cn(
-              "divide-y divide-border rounded-lg border border-border bg-surface shadow-xs transition-opacity duration-150",
+              "list-inset overflow-hidden rounded-xl border border-card-edge bg-surface shadow-card transition-opacity duration-150 [--list-inset:1rem] sm:[--list-inset:1.25rem]",
               isFiltering && "opacity-70",
             )}
           >
             {visible.map((agent) => (
-              <AgentRow key={agent.slug} agent={agent} />
+              <AgentRow key={agent.slug} agent={agent} onOpen={setOpenSlug} />
             ))}
           </ul>
         ) : needle ? (
@@ -226,6 +251,7 @@ export function AgentCatalog() {
       </h2>
       <PlanNotice />
       {body}
+      <AgentDetailDialog agent={openAgent} onClose={() => setOpenSlug(null)} />
     </section>
   );
 }

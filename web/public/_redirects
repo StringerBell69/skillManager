@@ -12,3 +12,5 @@
 /login/*      /app.html  200
 /signup       /app.html  200
 /signup/*     /app.html  200
+/settings     /app.html  200
+/settings/*   /app.html  200

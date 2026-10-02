@@ -15,9 +15,13 @@ const app = (
 
 const container = document.getElementById("root")!;
 
-// The landing page ships prerendered HTML; every other route renders on the client.
-if (container.hasChildNodes() && window.location.pathname === "/") {
+// Public pages ship prerendered HTML stamped with their route. Hydrate only when the
+// stamp matches this URL; a host that serves the wrong file just gets a fresh render.
+const path = window.location.pathname.replace(/(.)\/+$/, "$1");
+
+if (container.hasChildNodes() && container.dataset.route === path) {
   hydrateRoot(container, app);
 } else {
+  container.replaceChildren();
   createRoot(container).render(app);
 }

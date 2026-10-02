@@ -14,7 +14,7 @@ export function Command({ command, label = "Copy command", className, prompt = t
   return (
     <div
       className={cn(
-        "flex h-10 min-w-0 items-center gap-2 rounded-lg border border-border bg-subtle pl-3.5 pr-1 font-mono text-[13px]",
+        "flex h-10 min-w-0 items-center gap-2 rounded-lg border border-card-edge bg-subtle pl-4 pr-1 font-mono text-[13px]",
         className,
       )}
     >

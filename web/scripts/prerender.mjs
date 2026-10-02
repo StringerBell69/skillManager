@@ -15,7 +15,7 @@ if (!/^https?:\/\/[^/]+$/.test(SITE)) {
   throw new Error("VITE_SITE_URL must be set to the public origin, e.g. https://skillmanager.dev");
 }
 
-const PUBLIC_ROUTES = ["/"];
+const PUBLIC_ROUTES = ["/", "/pricing"];
 const template = await fs.readFile(path.join(dist, "index.html"), "utf8");
 const { render } = await import(path.join(ssrDir, "entry-prerender.js"));
 
@@ -31,7 +31,8 @@ for (const route of PUBLIC_ROUTES) {
   }
   const html = template
     .replace("<!--app-head-->", head)
-    .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
+    // The route stamp lets the client skip hydration if a host serves this file for another URL.
+    .replace('<div id="root"></div>', `<div id="root" data-route="${route}">${body}</div>`);
   const file = route === "/" ? "index.html" : path.join(route.slice(1), "index.html");
   await fs.mkdir(path.dirname(path.join(dist, file)), { recursive: true });
   await fs.writeFile(path.join(dist, file), html);

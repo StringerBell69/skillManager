@@ -48,7 +48,7 @@ export function CopyButton({ value, label = "Copy to clipboard", className }: Co
       aria-label={label}
       title={copied ? "Copied" : label}
       className={cn(
-        "relative inline-flex size-8 shrink-0 items-center justify-center rounded-md text-muted-foreground",
+        "relative inline-flex size-8 shrink-0 items-center justify-center rounded-full text-muted-foreground",
         "transition-colors duration-150 hover:bg-muted hover:text-foreground",
         className,
       )}
