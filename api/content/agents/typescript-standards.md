@@ -43,7 +43,7 @@ These rules must be followed in all TypeScript code in this project.
 ### Functions
 - Prefer `function` declarations over arrow functions for top-level exports
 - Use arrow functions for callbacks and inline functions
-- Keep functions under 30 lines — extract logic into helper functions
+- Keep functions under 30 lines; extract logic into helper functions
 - Use early returns to reduce nesting
 
 ### Testing

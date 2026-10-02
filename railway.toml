@@ -1,4 +1,4 @@
-# SkillManager API — Root Directory in Railway UI: /
+# SkillManager API. Root Directory in Railway UI: /
 # Required env: DATABASE_URL, DIRECT_URL, CLERK_*, STRIPE_*, WEB_URL, API_URL, ADMIN_API_KEY
 # On Railway Postgres: set DIRECT_URL to the same value as DATABASE_URL.
 

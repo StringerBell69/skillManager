@@ -1,41 +1,47 @@
-import { useUser } from "@clerk/clerk-react";
+import { useBilling } from "@/hooks/useAccount";
+import { AppSeo } from "@/components/seo";
+import { PageHeader } from "@/components/ui/page-header";
+import { BillingNotice } from "@/components/overview/billing-notice";
+import { QueryError } from "@/components/overview/query-error";
+import { RecentDevicesCard } from "@/components/overview/recent-devices-card";
+import { SetupCard } from "@/components/overview/setup-card";
+import { SummaryCards, SummaryCardsSkeleton } from "@/components/overview/summary-cards";
+import { YourAgentsCard } from "@/components/overview/your-agents-card";
 
 export default function Dashboard() {
-  const { user } = useUser();
+  const billing = useBilling();
+  const connected = billing.data ? billing.data.usage.deviceCount > 0 : null;
 
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome back, {user?.firstName || user?.primaryEmailAddress?.emailAddress}.
-        </p>
-      </div>
+    <>
+      <AppSeo title="Overview" />
+      <div className="flex flex-col gap-8">
+        <PageHeader title="Overview" description="Your plan, connected devices, and agents." />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="p-6 rounded-xl border border-border bg-card">
-          <h3 className="font-medium text-lg mb-4">Install CLI</h3>
-          <p className="text-muted-foreground mb-4 text-sm">
-            Install the SkillManager CLI to bring AI agents directly to your terminal.
-          </p>
-          <div className="bg-background rounded-md p-3 font-mono text-sm border border-border flex justify-between items-center">
-            <span className="text-primary">npm i -g @skillmanager/cli</span>
-            <button className="text-muted-foreground hover:text-foreground transition-colors">
-              Copy
-            </button>
+        {billing.data ? (
+          <>
+            <BillingNotice billing={billing.data} />
+            <SummaryCards billing={billing.data} />
+          </>
+        ) : billing.isError ? (
+          <QueryError
+            title="Could not load your plan and usage"
+            error={billing.error}
+            onRetry={() => void billing.refetch()}
+            retrying={billing.isFetching}
+          />
+        ) : (
+          <SummaryCardsSkeleton />
+        )}
+
+        <div className="grid items-start gap-6 lg:grid-cols-2">
+          <SetupCard connected={connected} loading={billing.isPending} />
+          <div className="flex flex-col gap-6">
+            <RecentDevicesCard />
+            <YourAgentsCard />
           </div>
         </div>
-
-        <div className="p-6 rounded-xl border border-border bg-card">
-          <h3 className="font-medium text-lg mb-4">Your Subscription</h3>
-          <p className="text-muted-foreground mb-4 text-sm">
-            You are currently on the <span className="font-bold text-primary">FREE</span> plan.
-          </p>
-          <button className="px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors">
-            Upgrade Plan
-          </button>
-        </div>
       </div>
-    </div>
+    </>
   );
 }

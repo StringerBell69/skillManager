@@ -1,32 +1,48 @@
-# React + TypeScript + Vite
+# @skillmanager/web
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Landing page and signed-in dashboard for SkillManager. Vite, React 19, React Router 7, Tailwind CSS 4, Clerk, and TanStack Query.
 
-Currently, two official plugins are available:
+## Routes
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Path | Rendering | Purpose |
+|---|---|---|
+| `/` | Prerendered at build time, hydrated | Public landing page |
+| `/login/*`, `/signup/*` | Client | Clerk sign-in and sign-up |
+| `/cli?code=ABCD-2345` | Client | Approve or deny a `sm login` request |
+| `/dashboard`, `/agents`, `/devices`, `/billing` | Client, `noindex` | Signed-in app |
 
-## React Compiler
+Clerk and React Query load only on the routes that need them, so the landing page ships without them.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Setup
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+cp .env.example .env
+bun run dev        # http://localhost:3000
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+| Variable | Required | Description |
+|---|---|---|
+| `VITE_CLERK_PUBLISHABLE_KEY` | Yes | Clerk publishable key |
+| `VITE_API_URL` | Yes | SkillManager API origin |
+| `VITE_SITE_URL` | For builds | Public origin used for canonical URLs, Open Graph tags, and the sitemap |
+| `VITE_PRICE_PRO_MONTHLY`, `VITE_PRICE_PRO_YEARLY` | No | Display prices on the landing and billing pages, e.g. `€9`. Without them the pages say the price is shown at checkout. |
+
+## Build
+
+```bash
+bun run build      # tsc, client build, SSR build of the landing page, prerender
+bun run lint
+```
+
+`scripts/prerender.mjs` writes into `dist/`:
+
+- `index.html`: the landing page with its head tags and markup already rendered
+- `app.html`: the shell for signed-in routes (`noindex`)
+- `404.html`: the same shell for unknown paths, to be served with a 404 status
+- `robots.txt` and `sitemap.xml`
+
+The host must serve `app.html` for the signed-in routes and must not fall back to `index.html` for them. `public/_redirects` covers Netlify and Cloudflare Pages.
+
+## Design
+
+The design system (tokens, type scale, components, content rules) is documented in [DESIGN.md](./DESIGN.md). Fonts are self-hosted from `src/assets/fonts` under the SIL Open Font License.

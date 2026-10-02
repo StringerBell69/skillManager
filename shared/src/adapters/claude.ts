@@ -4,7 +4,7 @@ import type { Adapter } from "./types.js";
 /**
  * Claude Code adapter.
  *
- * Format reference (2025–2026):
+ * Format reference (2025-2026):
  * - Agents (kind=agent):    .claude/agents/<name>.md       (standalone file)
  * - Skills (kind=skill):    .claude/skills/<name>/SKILL.md (directory with SKILL.md)
  * - Rules  (kind=rule):     .claude/rules/<name>.md        (standalone file)

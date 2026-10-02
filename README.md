@@ -6,10 +6,10 @@
 
 ```
 skillmanager/
-├── shared/          # @skillmanager/shared — types, schemas, adapters, watermark
-├── api/             # @skillmanager/api — NestJS + Prisma + PostgreSQL
-├── cli/             # @skillmanager/cli — Commander + Clack prompts
-├── web/             # (à venir)
+├── shared/          # @skillmanager/shared: types, schemas, adapters, watermark
+├── api/             # @skillmanager/api: NestJS + Prisma + PostgreSQL
+├── cli/             # @skillmanager/cli: Commander + Clack prompts
+├── web/             # @skillmanager/web: landing page and dashboard (Vite + React + Clerk)
 ├── content/agents/  # Example .md agents (source of truth)
 └── scripts/         # Utility scripts (publish-agents)
 ```
@@ -93,6 +93,18 @@ node cli/dist/index.js install --dry-run
 node cli/dist/index.js whoami
 ```
 
+## Web App
+
+The web app in `web/` serves the public landing page and the signed-in dashboard (overview, agents, devices, billing) plus the CLI authorization page at `/cli`.
+
+```bash
+cp web/.env.example web/.env   # Clerk key, API URL, public site URL
+bun run dev:web                # http://localhost:3000
+cd web && bun run build        # type-checks, builds, and prerenders the landing page
+```
+
+The build writes `dist/index.html` (prerendered landing page), `dist/app.html` (shell for signed-in routes, marked `noindex`), `dist/404.html`, `robots.txt`, and `sitemap.xml`. Configure the host to serve `app.html` for `/dashboard`, `/agents`, `/devices`, `/billing`, `/cli`, `/login`, and `/signup` (including sub-paths), and `404.html` with a 404 status for unknown paths. `web/public/_redirects` does this on Netlify and Cloudflare Pages. See `web/DESIGN.md` for the design system.
+
 ## Auth Flow
 
 ```
@@ -147,18 +159,23 @@ sm install --force                  # Overwrite local changes
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| POST | `/v1/cli/auth/start` | — | Start device flow |
-| POST | `/v1/cli/auth/poll` | — | Poll device flow |
+| POST | `/v1/cli/auth/start` | None | Start device flow |
+| POST | `/v1/cli/auth/poll` | None | Poll device flow |
 | POST | `/v1/cli/auth/approve` | Clerk JWT | Approve device |
 | POST | `/v1/cli/auth/deny` | Clerk JWT | Deny device |
 | GET | `/v1/me` | CLI Token | User info |
 | GET | `/v1/bundle` | CLI Token | Download agents |
 | GET | `/v1/me/devices` | Clerk JWT | List devices |
 | DELETE | `/v1/me/devices/:id` | Clerk JWT | Revoke device |
+| GET | `/v1/me/billing` | Clerk JWT | Plan, usage, and invoices |
+| POST | `/v1/me/billing/checkout` | Clerk JWT | Start Stripe Checkout (requires the withdrawal waiver) |
+| POST | `/v1/me/billing/portal` | Clerk JWT | Open the Stripe billing portal |
+| GET | `/v1/me/catalog/agents` | Clerk JWT | Agents available on the user's plan |
+| GET | `/v1/me/catalog/packs` | Clerk JWT | All packs with their required plan |
 | POST | `/v1/admin/agents/publish` | Admin Key | Publish agent |
 | POST | `/v1/webhooks/clerk` | Svix sig | Clerk events |
 | POST | `/v1/webhooks/stripe` | Stripe sig | Stripe events |
-| GET | `/health` | — | Health check |
+| GET | `/health` | None | Health check |
 
 ## Running Tests
 
@@ -174,11 +191,11 @@ cd cli && bun run test
 
 ## What's Left (TODO)
 
-- [ ] `web/` — Frontend dashboard with Clerk auth
+- [x] `web/`: landing page and dashboard with Clerk auth
 - [ ] npm/bun publish for `@skillmanager/cli`
 - [ ] Deployment (Docker, Fly.io, Railway, etc.)
-- [ ] Stripe checkout endpoint
-- [ ] User dashboard (manage devices, view plan)
+- [x] Stripe checkout endpoint
+- [x] User dashboard (manage devices, view plan)
 - [ ] Agent marketplace / browse UI
 - [ ] CI/CD pipeline
 - [ ] Rate limiting fine-tuning
