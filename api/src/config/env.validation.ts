@@ -2,13 +2,19 @@ import { z } from "zod";
 
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
+  // Prisma migrate / introspect; on Railway Postgres set DIRECT_URL=$DATABASE_URL
+  DIRECT_URL: z.string().url(),
   CLERK_SECRET_KEY: z.string().min(1),
   CLERK_WEBHOOK_SECRET: z.string().min(1),
   STRIPE_SECRET_KEY: z.string().min(1),
   STRIPE_WEBHOOK_SECRET: z.string().min(1),
+  STRIPE_PRICE_PRO_MONTHLY: z.string().min(1).optional(),
+  STRIPE_PRICE_PRO_YEARLY: z.string().min(1).optional(),
+  STRIPE_PRICE_TEAM_MONTHLY: z.string().min(1).optional(),
   WEB_URL: z.string().url().default("http://localhost:3000"),
   API_URL: z.string().url().default("http://localhost:3001"),
   API_PORT: z.string().default("3001"),
+  PORT: z.string().optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   ADMIN_API_KEY: z.string().min(16),
 });

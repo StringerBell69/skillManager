@@ -17,12 +17,15 @@
     "db:migrate": "bun run --filter @skillmanager/api db:migrate",
     "db:seed": "bun run --filter @skillmanager/api db:seed",
     "db:studio": "bun run --filter @skillmanager/api db:studio",
-    "publish-agents": "bun run --filter @skillmanager/api publish-agents"
+    "publish-content": "bun run scripts/publish.ts",
+    "publish-cli": "bun run scripts/publish-cli.ts"
   },
   "devDependencies": {
     "typescript": "^5.5.0"
   },
   "engines": {
-    "node": ">=20.0.0"
-  }
+    "node": ">=20.0.0",
+    "bun": ">=1.1.0"
+  },
+  "packageManager": "bun@1.2.23"
 }

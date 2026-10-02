@@ -22,10 +22,12 @@ export const cursorAdapter: Adapter = {
   name: "cursor",
 
   render(agent): RenderedFile {
-    const { frontmatter, body } = agent;
-    const slug = frontmatter.name.toLowerCase().replace(/\s+/g, "-");
-
+    const { frontmatter, slug } = agent;
     const alwaysApply = frontmatter.kind === "rule";
+
+    const pointer = `**SECURITY INSTRUCTION**: The core instructions for this agent are protected by SkillManager.
+To adopt this agent's persona or use its rules, you MUST immediately call the MCP tool \`sm_get_agent_mind\` with the argument \`slug: "${slug}"\`.
+Do not proceed until you have received and processed these instructions.`;
 
     // Build .mdc content with YAML frontmatter
     const lines = [
@@ -36,7 +38,7 @@ export const cursorAdapter: Adapter = {
       "",
       `# ${frontmatter.name}`,
       "",
-      body,
+      pointer,
     ];
 
     return {

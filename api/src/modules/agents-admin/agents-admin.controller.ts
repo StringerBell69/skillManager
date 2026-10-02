@@ -9,15 +9,42 @@ import {
 import { PrismaService } from "../../prisma/prisma.service";
 import { AdminGuard } from "./admin.guard";
 import { parseAgentSource } from "@skillmanager/shared";
+import { IsString, IsOptional, IsArray, IsEnum } from "class-validator";
 
 class PublishAgentDto {
+  @IsString()
   slug!: string;
+
+  @IsString()
   version!: string;
+
+  @IsString()
   source!: string;
+
+  @IsString()
+  @IsOptional()
   changelog?: string;
 }
 
-@Controller("v1/admin/agents")
+class PublishPackDto {
+  @IsString()
+  slug!: string;
+
+  @IsString()
+  name!: string;
+
+  @IsString()
+  description!: string;
+
+  @IsString()
+  planRequired!: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  agentSlugs!: string[];
+}
+
+@Controller("v1/admin")
 @UseGuards(AdminGuard)
 export class AgentsAdminController {
   private readonly logger = new Logger(AgentsAdminController.name);
@@ -28,7 +55,7 @@ export class AgentsAdminController {
    * Publish or update an agent from its .md source.
    * Upserts the Agent record and creates an AgentVersion.
    */
-  @Post("publish")
+  @Post("agents/publish")
   @HttpCode(200)
   async publishAgent(@Body() dto: PublishAgentDto) {
     // Parse the source to validate and extract frontmatter
@@ -85,4 +112,60 @@ export class AgentsAdminController {
       published: true,
     };
   }
+
+  /**
+   * Publish or update a pack.
+   * Upserts the Pack and manages its agents.
+   */
+  @Post("packs/publish")
+  @HttpCode(200)
+  async publishPack(@Body() dto: PublishPackDto) {
+    const pack = await this.prisma.pack.upsert({
+      where: { slug: dto.slug },
+      create: {
+        slug: dto.slug,
+        name: dto.name,
+        description: dto.description,
+        planRequired: dto.planRequired as any,
+      },
+      update: {
+        name: dto.name,
+        description: dto.description,
+        planRequired: dto.planRequired as any,
+      },
+    });
+
+    // We must clear old relations and set new ones to ensure correct ordering/agents
+    await this.prisma.packAgent.deleteMany({
+      where: { packId: pack.id },
+    });
+
+    let addedCount = 0;
+    for (let i = 0; i < dto.agentSlugs.length; i++) {
+      const agent = await this.prisma.agent.findUnique({
+        where: { slug: dto.agentSlugs[i] },
+      });
+      if (!agent) {
+        this.logger.warn(`Agent ${dto.agentSlugs[i]} not found while publishing pack ${dto.slug}`);
+        continue;
+      }
+      await this.prisma.packAgent.create({
+        data: {
+          packId: pack.id,
+          agentId: agent.id,
+          position: i,
+        },
+      });
+      addedCount++;
+    }
+
+    this.logger.log(`Published pack: ${dto.slug} (${addedCount} agents)`);
+
+    return {
+      slug: pack.slug,
+      published: true,
+      agentsCount: addedCount,
+    };
+  }
 }
+

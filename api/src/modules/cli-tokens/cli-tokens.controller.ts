@@ -7,28 +7,36 @@ import {
   HttpCode,
   NotFoundException,
 } from "@nestjs/common";
+import type { DevicesResponse, Plan } from "@skillmanager/shared";
 import { PrismaService } from "../../prisma/prisma.service";
 import { ClerkAuthGuard } from "../auth-clerk/clerk-auth.guard";
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import { getDeviceLimit, mapDevices } from "./device-limits";
 
 @Controller("v1/me/devices")
 @UseGuards(ClerkAuthGuard)
 export class CliTokensController {
   constructor(private readonly prisma: PrismaService) {}
 
-  /**
-   * List all CLI tokens (devices) for the authenticated user.
-   */
   @Get()
-  async listDevices(@CurrentUser() user: { clerkId: string }) {
+  async listDevices(
+    @CurrentUser() user: { clerkId: string },
+  ): Promise<DevicesResponse> {
     const dbUser = await this.prisma.user.findUnique({
       where: { clerkId: user.clerkId },
+      include: { subscription: true },
     });
 
     if (!dbUser) {
-      return [];
+      return {
+        plan: "FREE",
+        deviceLimit: 1,
+        deviceCount: 0,
+        devices: [],
+      };
     }
 
+    const plan = (dbUser.subscription?.plan as Plan) || "FREE";
     const tokens = await this.prisma.cliToken.findMany({
       where: {
         userId: dbUser.id,
@@ -40,20 +48,19 @@ export class CliTokensController {
         lastUsedAt: true,
         createdAt: true,
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [{ lastUsedAt: "desc" }, { createdAt: "desc" }],
     });
 
-    return tokens.map((t) => ({
-      id: t.id,
-      name: t.name,
-      lastUsedAt: t.lastUsedAt?.toISOString() ?? null,
-      createdAt: t.createdAt.toISOString(),
-    }));
+    const devices = mapDevices(tokens);
+
+    return {
+      plan,
+      deviceLimit: getDeviceLimit(plan),
+      deviceCount: devices.length,
+      devices,
+    };
   }
 
-  /**
-   * Revoke a CLI token (device).
-   */
   @Delete(":id")
   @HttpCode(200)
   async revokeDevice(

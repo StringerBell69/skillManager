@@ -18,8 +18,8 @@ export const AgentFrontmatterSchema = z.object({
 
 export type AgentFrontmatter = z.infer<typeof AgentFrontmatterSchema>;
 
-// ── Full agent source (frontmatter + markdown body) ─────────
 export const AgentSourceSchema = z.object({
+  slug: z.string().optional(),
   frontmatter: AgentFrontmatterSchema,
   body: z.string(),
 });

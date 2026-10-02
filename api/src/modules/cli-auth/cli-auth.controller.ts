@@ -19,7 +19,8 @@ import {
   generateUserCode,
   generateCliToken,
 } from "../../common/utils/crypto";
-
+import { assertDeviceSlotAvailable } from "../cli-tokens/device-limits";
+import { deviceLimitError } from "../cli-tokens/device-limit-error";
 import { IsString, IsOptional } from "class-validator";
 
 class StartDto {
@@ -52,17 +53,12 @@ export class CliAuthController {
     private readonly configService: ConfigService,
   ) {}
 
-  /**
-   * Start the device flow.
-   * Returns a userCode for the user to enter on the web, and a deviceCode
-   * for the CLI to poll with.
-   */
   @Post("start")
   @HttpCode(200)
   async start(@Body() dto: StartDto) {
     const deviceCode = generateDeviceCode();
     const userCode = generateUserCode();
-    const expiresAt = new Date(Date.now() + 600_000); // 10 minutes
+    const expiresAt = new Date(Date.now() + 600_000);
 
     await this.prisma.deviceAuth.create({
       data: {
@@ -84,10 +80,6 @@ export class CliAuthController {
     };
   }
 
-  /**
-   * Poll for the device flow status.
-   * Called by the CLI repeatedly until approved, denied, or expired.
-   */
   @Post("poll")
   @HttpCode(200)
   @UseGuards(ThrottlerGuard)
@@ -103,13 +95,16 @@ export class CliAuthController {
     }
 
     if (deviceAuth.expiresAt < new Date()) {
-      // Cleanup expired entry
-      await this.prisma.deviceAuth.delete({ where: { id: deviceAuth.id } }).catch(() => {});
+      await this.prisma.deviceAuth
+        .delete({ where: { id: deviceAuth.id } })
+        .catch(() => {});
       return { status: "expired" };
     }
 
     if (deviceAuth.status === "DENIED") {
-      await this.prisma.deviceAuth.delete({ where: { id: deviceAuth.id } }).catch(() => {});
+      await this.prisma.deviceAuth
+        .delete({ where: { id: deviceAuth.id } })
+        .catch(() => {});
       return { status: "denied" };
     }
 
@@ -117,12 +112,26 @@ export class CliAuthController {
       return { status: "pending" };
     }
 
-    // APPROVED — generate token and clean up
     if (!deviceAuth.userId) {
       throw new BadRequestException({
         code: "INTERNAL_ERROR",
         message: "Approved device auth has no user",
       });
+    }
+
+    const slot = await assertDeviceSlotAvailable(this.prisma, deviceAuth.userId);
+    if (slot.limit !== null && slot.count >= slot.limit) {
+      await this.prisma.deviceAuth
+        .update({
+          where: { id: deviceAuth.id },
+          data: { status: "DENIED" },
+        })
+        .catch(() => {});
+
+      return {
+        status: "device_limit",
+        message: `Your ${slot.plan} plan allows ${slot.limit} connected device${slot.limit === 1 ? "" : "s"}. Revoke one from the dashboard Devices page, then try again.`,
+      };
     }
 
     const token = generateCliToken();
@@ -136,7 +145,6 @@ export class CliAuthController {
       },
     });
 
-    // Delete the device auth (one-time use)
     await this.prisma.deviceAuth.delete({ where: { id: deviceAuth.id } });
 
     this.logger.log(`CLI token issued for user ${deviceAuth.userId}`);
@@ -147,9 +155,6 @@ export class CliAuthController {
     };
   }
 
-  /**
-   * Approve a device flow (called from the web by an authenticated user).
-   */
   @Post("approve")
   @HttpCode(200)
   @UseGuards(ClerkAuthGuard, ThrottlerGuard)
@@ -169,7 +174,9 @@ export class CliAuthController {
     }
 
     if (deviceAuth.expiresAt < new Date()) {
-      await this.prisma.deviceAuth.delete({ where: { id: deviceAuth.id } }).catch(() => {});
+      await this.prisma.deviceAuth
+        .delete({ where: { id: deviceAuth.id } })
+        .catch(() => {});
       throw new GoneException({
         code: "DEVICE_CODE_EXPIRED",
         message: "This code has expired",
@@ -183,7 +190,6 @@ export class CliAuthController {
       });
     }
 
-    // Find our internal user
     const dbUser = await this.prisma.user.findUnique({
       where: { clerkId: user.clerkId },
     });
@@ -193,6 +199,11 @@ export class CliAuthController {
         code: "UNAUTHORIZED",
         message: "User not found. Please try logging in again.",
       });
+    }
+
+    const slot = await assertDeviceSlotAvailable(this.prisma, dbUser.id);
+    if (slot.limit !== null && slot.count >= slot.limit) {
+      throw deviceLimitError(slot.plan, slot.limit, slot.count);
     }
 
     await this.prisma.deviceAuth.update({
@@ -208,9 +219,6 @@ export class CliAuthController {
     return { approved: true };
   }
 
-  /**
-   * Deny a device flow (called from the web by an authenticated user).
-   */
   @Post("deny")
   @HttpCode(200)
   @UseGuards(ClerkAuthGuard, ThrottlerGuard)

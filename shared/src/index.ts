@@ -14,6 +14,15 @@ export type {
   RenderedFile,
 } from "./schemas.js";
 
+export {
+  DEVICE_LIMITS,
+  ACTIVE_DEVICE_WINDOW_MS,
+  PLAN_HIERARCHY,
+  getDeviceLimit,
+  isDeviceActive,
+  planAtLeast,
+} from "./plan-limits.js";
+
 // ── Parser ───────────────────────────────────────────────────
 export {
   parseAgentSource,
@@ -50,7 +59,12 @@ export type {
   DeviceFlowPollStatus,
   DeviceFlowPollResponse,
   MeResponse,
+  BillingInvoice,
+  BillingUsage,
+  UnlockedAgent,
+  BillingSummaryResponse,
   DeviceInfo,
+  DevicesResponse,
   BundleAgentFile,
   BundleAgent,
   BundleResponse,
@@ -59,4 +73,6 @@ export type {
   PublishAgentRequest,
   PublishAgentResponse,
   AgentListItem,
+  PackListItem,
+  PackBundleResponse,
 } from "./api-types.js";

@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ── User (synced from Clerk via webhook) ─────────────────────
@@ -42,6 +43,12 @@ model Subscription {
   provider           String?            // "stripe" | "polar" | "lemonsqueezy"
   providerCustomerId String?
   currentPeriodEnd   DateTime?
+  /// Consentement de renonciation au délai de rétractation (14 jours)
+  withdrawalWaivedAt       DateTime?
+  withdrawalWaiverVersion  String?
+  withdrawalWaiverInterval String?      // "month" | "year"
+  withdrawalWaiverLocale   String?      // "fr" | "en"
+  withdrawalWaiverText     String?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 }
@@ -96,6 +103,33 @@ model Agent {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   versions     AgentVersion[]
+  packs        PackAgent[]
+}
+
+// ── Pack (group of agents) ───────────────────────────────────
+
+model Pack {
+  id           String      @id @default(cuid())
+  slug         String      @unique
+  name         String
+  description  String
+  planRequired PlanType    @default(FREE)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  agents       PackAgent[]
+}
+
+model PackAgent {
+  id       String @id @default(cuid())
+  packId   String
+  pack     Pack   @relation(fields: [packId], references: [id], onDelete: Cascade)
+  agentId  String
+  agent    Agent  @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  position Int    @default(0) // ordering within the pack
+
+  @@unique([packId, agentId])
+  @@index([packId])
+  @@index([agentId])
 }
 
 // ── Agent Version ────────────────────────────────────────────

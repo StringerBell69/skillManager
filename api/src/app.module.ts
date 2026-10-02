@@ -6,6 +6,7 @@ import { AuthClerkModule } from "./modules/auth-clerk/auth-clerk.module";
 import { CliAuthModule } from "./modules/cli-auth/cli-auth.module";
 import { CliTokensModule } from "./modules/cli-tokens/cli-tokens.module";
 import { BundleModule } from "./modules/bundle/bundle.module";
+import { PacksModule } from "./modules/packs/packs.module";
 import { BillingModule } from "./modules/billing/billing.module";
 import { AgentsAdminModule } from "./modules/agents-admin/agents-admin.module";
 import { HealthModule } from "./modules/health/health.module";
@@ -39,6 +40,7 @@ import { envValidation } from "./config/env.validation";
     CliAuthModule,
     CliTokensModule,
     BundleModule,
+    PacksModule,
     BillingModule,
     AgentsAdminModule,
     HealthModule,

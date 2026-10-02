@@ -5,6 +5,7 @@ import {
   UseGuards,
   ForbiddenException,
   Logger,
+  Param,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CliTokenGuard } from "../cli-tokens/cli-token.guard";
@@ -86,6 +87,7 @@ export class BundleController {
       // Build the AgentSource
       const frontmatter = latestVersion.frontmatter as Record<string, any>;
       const agentSource: AgentSource = {
+        slug: agent.slug,
         frontmatter: {
           name: agent.name,
           description: agent.description,
@@ -135,6 +137,68 @@ export class BundleController {
       email: user.email,
       plan: subscription?.plan || "FREE",
       status: subscription?.status || "ACTIVE",
+    };
+  }
+
+  /**
+   * Fetch the raw mind of an agent by slug for MCP injection.
+   */
+  @Get("bundle/mind/:slug")
+  @UseGuards(CliTokenGuard)
+  async getAgentMind(@Param("slug") slug: string, @CurrentUser() user: any) {
+    const subscription = user.subscription;
+
+    if (!subscription || subscription.status !== "ACTIVE") {
+      throw new ForbiddenException({
+        code: "LICENSE_EXPIRED",
+        message: "Your subscription is not active. Renew at your dashboard.",
+      });
+    }
+
+    const userPlan = subscription.plan as string;
+    const userPlanLevel = PLAN_HIERARCHY[userPlan] ?? 0;
+
+    const agent = await this.prisma.agent.findUnique({
+      where: { slug },
+      include: {
+        versions: {
+          where: { publishedAt: { not: null } },
+          orderBy: { publishedAt: "desc" },
+          take: 1,
+        },
+      },
+    });
+
+    if (!agent) {
+      throw new ForbiddenException({
+        code: "NOT_FOUND",
+        message: `Agent ${slug} not found.`,
+      });
+    }
+
+    const agentPlanLevel = PLAN_HIERARCHY[agent.planRequired] ?? 0;
+    if (agentPlanLevel > userPlanLevel) {
+      throw new ForbiddenException({
+        code: "PLAN_INSUFFICIENT",
+        message: `You need a higher plan to access ${slug}.`,
+      });
+    }
+
+    const latestVersion = agent.versions[0];
+    if (!latestVersion) {
+      throw new ForbiddenException({
+        code: "NOT_FOUND",
+        message: `Agent ${slug} has no published versions.`,
+      });
+    }
+
+    // Apply watermark for tracking leaks
+    const watermarkedContent = applyWatermark(latestVersion.body, user.id);
+
+    return {
+      slug: agent.slug,
+      version: latestVersion.version,
+      content: watermarkedContent,
     };
   }
 }

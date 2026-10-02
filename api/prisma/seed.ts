@@ -120,6 +120,61 @@ async function main() {
     console.log(`  ✓ Agent: ${agentData.slug}@${agentData.version}`);
   }
 
+  // ── Seed packs ──────────────────────────────────────────────
+  const packs = [
+    {
+      slug: "code-quality",
+      name: "Code Quality",
+      description: "Everything you need for clean, secure, well-typed code",
+      planRequired: "FREE" as const,
+      agentSlugs: ["code-reviewer", "typescript-standards", "api-designer"],
+    },
+  ];
+
+  for (const packData of packs) {
+    const pack = await prisma.pack.upsert({
+      where: { slug: packData.slug },
+      create: {
+        slug: packData.slug,
+        name: packData.name,
+        description: packData.description,
+        planRequired: packData.planRequired,
+      },
+      update: {
+        name: packData.name,
+        description: packData.description,
+        planRequired: packData.planRequired,
+      },
+    });
+
+    // Link agents to pack
+    for (let i = 0; i < packData.agentSlugs.length; i++) {
+      const agent = await prisma.agent.findUnique({
+        where: { slug: packData.agentSlugs[i] },
+      });
+      if (!agent) continue;
+
+      await prisma.packAgent.upsert({
+        where: {
+          packId_agentId: {
+            packId: pack.id,
+            agentId: agent.id,
+          },
+        },
+        create: {
+          packId: pack.id,
+          agentId: agent.id,
+          position: i,
+        },
+        update: {
+          position: i,
+        },
+      });
+    }
+
+    console.log(`  ✓ Pack: ${packData.name} (${packData.agentSlugs.length} agents)`);
+  }
+
   console.log("✅ Seed complete!");
 }
 

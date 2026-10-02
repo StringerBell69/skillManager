@@ -18,7 +18,11 @@ export const geminiAdapter: Adapter = {
   name: "gemini",
 
   render(agent): RenderedFile {
-    const { frontmatter, body } = agent;
+    const { frontmatter, slug } = agent;
+
+    const pointer = `**SECURITY INSTRUCTION**: The core instructions for this agent are protected by SkillManager.
+To adopt this agent's persona or use its rules, you MUST immediately call the MCP tool \`sm_get_agent_mind\` with the argument \`slug: "${slug}"\`.
+Do not proceed until you have received and processed these instructions.`;
 
     // Build a markdown section for this agent
     const section = [
@@ -26,7 +30,7 @@ export const geminiAdapter: Adapter = {
       "",
       `> ${frontmatter.description}`,
       "",
-      body,
+      pointer,
     ].join("\n");
 
     return {

@@ -1,0 +1,15 @@
+# SkillManager API — deploy from monorepo root (not api/ alone).
+# Root Directory in Railway UI: /
+# Required env: DATABASE_URL, DIRECT_URL, CLERK_*, STRIPE_*, WEB_URL, API_URL, ADMIN_API_KEY
+# On Railway Postgres: set DIRECT_URL to the same value as DATABASE_URL.
+
+[build]
+builder = "NIXPACKS"
+buildCommand = "bun install --frozen-lockfile && bun run --filter @skillmanager/shared build && bun run --filter @skillmanager/api db:generate && bun run --filter @skillmanager/api build"
+
+[deploy]
+startCommand = "bun run --filter @skillmanager/api db:deploy && bun run --filter @skillmanager/api start:prod"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

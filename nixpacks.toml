@@ -1,0 +1,5 @@
+# Prefer Bun for monorepo install + workspace filters.
+providers = ["...", "bun"]
+
+[variables]
+NIXPACKS_NODE_VERSION = "20"

@@ -14,12 +14,19 @@ export interface DeviceFlowStartResponse {
   expiresIn: number;
 }
 
-export type DeviceFlowPollStatus = "pending" | "approved" | "denied" | "expired";
+export type DeviceFlowPollStatus =
+  | "pending"
+  | "approved"
+  | "denied"
+  | "expired"
+  | "device_limit";
 
 export interface DeviceFlowPollResponse {
   status: DeviceFlowPollStatus;
   /** Only present when status === "approved" */
   token?: string;
+  /** Present when status === "device_limit" */
+  message?: string;
 }
 
 // ── Auth: Me ─────────────────────────────────────────────────
@@ -30,6 +37,50 @@ export interface MeResponse {
   status: SubscriptionStatus;
 }
 
+// ── Billing (web dashboard) ──────────────────────────────────
+
+export interface BillingInvoice {
+  id: string;
+  number: string | null;
+  date: string;
+  description: string;
+  amount: string;
+  currency: string;
+  status: "paid" | "open" | "void" | "uncollectible" | "draft";
+  pdfUrl: string | null;
+}
+
+export interface BillingUsage {
+  deviceCount: number;
+  deviceLimit: number | null;
+  packsUnlocked: number;
+  packsTotal: number;
+  agentsUnlocked: number;
+  agentsTotal: number;
+}
+
+export interface UnlockedAgent {
+  slug: string;
+  name: string;
+  description: string;
+  kind: string;
+  planRequired: Plan;
+  latestVersion: string;
+  installCommand: string;
+}
+
+export interface BillingSummaryResponse {
+  email: string;
+  plan: Plan;
+  status: SubscriptionStatus;
+  currentPeriodEnd: string | null;
+  provider: string | null;
+  memberSince: string | null;
+  usage: BillingUsage;
+  unlockedAgents: UnlockedAgent[];
+  invoices: BillingInvoice[];
+}
+
 // ── CLI Tokens / Devices ─────────────────────────────────────
 
 export interface DeviceInfo {
@@ -37,6 +88,14 @@ export interface DeviceInfo {
   name: string;
   lastUsedAt: string | null;
   createdAt: string;
+  isActive: boolean;
+}
+
+export interface DevicesResponse {
+  plan: Plan;
+  deviceLimit: number | null;
+  deviceCount: number;
+  devices: DeviceInfo[];
 }
 
 // ── Bundle ───────────────────────────────────────────────────
@@ -77,7 +136,8 @@ export type ErrorCode =
   | "NOT_FOUND"
   | "INTERNAL_ERROR"
   | "FORBIDDEN"
-  | "WEBHOOK_SIGNATURE_INVALID";
+  | "WEBHOOK_SIGNATURE_INVALID"
+  | "DEVICE_LIMIT_REACHED";
 
 export interface ApiError {
   statusCode: number;
@@ -111,4 +171,25 @@ export interface AgentListItem {
   kind: string;
   planRequired: Plan;
   latestVersion: string;
+}
+
+// ── Packs (agent groups) ─────────────────────────────────────
+
+export interface PackListItem {
+  slug: string;
+  name: string;
+  description: string;
+  planRequired: Plan;
+  agentCount: number;
+  agentSlugs: string[];
+}
+
+export interface PackBundleResponse {
+  pack: {
+    slug: string;
+    name: string;
+    description: string;
+  };
+  plan: Plan;
+  agents: BundleAgent[];
 }

@@ -30,5 +30,5 @@ api/prisma/*.db
 coverage/
 
 # Bun
-bun.lock
+# Keep bun.lock committed for reproducible Railway / CI installs
 

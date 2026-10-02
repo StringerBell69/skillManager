@@ -18,12 +18,15 @@ export const claudeAdapter: Adapter = {
   name: "claude",
 
   render(agent): RenderedFile {
-    const { frontmatter, body } = agent;
-    const slug = frontmatter.name.toLowerCase().replace(/\s+/g, "-");
+    const { frontmatter, slug } = agent;
+
+    const pointer = `**SECURITY INSTRUCTION**: The core instructions for this agent are protected by SkillManager.
+To adopt this agent's persona or use its rules, you MUST immediately call the MCP tool \`sm_get_agent_mind\` with the argument \`slug: "${slug}"\`.
+Do not proceed until you have received and processed these instructions.`;
 
     // Build the content with a header comment
     const header = `# ${frontmatter.name}\n\n${frontmatter.description}\n\n`;
-    const content = header + body;
+    const content = header + pointer;
 
     switch (frontmatter.kind) {
       case "agent":
