@@ -1,5 +1,5 @@
-# Prefer Bun for monorepo install + workspace filters.
-providers = ["...", "bun"]
+# Bun is auto-detected via bun.lock + packageManager in package.json (Node provider).
+# Do NOT set providers = ["bun"] — that provider name does not exist.
 
 [variables]
 NIXPACKS_NODE_VERSION = "20"
