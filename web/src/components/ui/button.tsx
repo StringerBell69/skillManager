@@ -1,0 +1,55 @@
+import type { ComponentProps } from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+import { Spinner } from "./spinner";
+
+export const buttonVariants = cva(
+  [
+    "inline-flex shrink-0 select-none items-center justify-center gap-2 whitespace-nowrap rounded-md font-medium active:scale-[0.98]",
+    "transition-[background-color,border-color,color,box-shadow,opacity,scale] duration-150",
+    "disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50",
+    "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  ],
+  {
+    variants: {
+      variant: {
+        primary: "bg-foreground text-background shadow-xs hover:bg-foreground/88",
+        accent: "bg-accent text-accent-foreground shadow-xs hover:bg-accent-hover",
+        secondary: "border border-border-strong bg-surface text-foreground shadow-xs hover:bg-muted",
+        ghost: "text-muted-foreground hover:bg-muted hover:text-foreground",
+        danger: "bg-danger text-danger-foreground shadow-xs hover:bg-danger-hover",
+        link: "text-accent-text underline-offset-4 hover:underline",
+      },
+      size: {
+        sm: "h-8 px-3 text-[13px]",
+        md: "h-9 px-3.5 text-sm",
+        lg: "h-11 px-5 text-[15px]",
+        icon: "size-9",
+        "icon-sm": "size-8",
+      },
+    },
+    compoundVariants: [{ variant: "link", className: "h-auto px-0" }],
+    defaultVariants: { variant: "secondary", size: "md" },
+  },
+);
+
+export type ButtonVariantProps = VariantProps<typeof buttonVariants>;
+
+interface ButtonProps extends ComponentProps<"button">, ButtonVariantProps {
+  loading?: boolean;
+}
+
+export function Button({ className, variant, size, loading = false, disabled, children, type = "button", ...props }: ButtonProps) {
+  return (
+    <button
+      type={type}
+      className={cn(buttonVariants({ variant, size }), className)}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...props}
+    >
+      {loading ? <Spinner className="size-4" /> : null}
+      {children}
+    </button>
+  );
+}

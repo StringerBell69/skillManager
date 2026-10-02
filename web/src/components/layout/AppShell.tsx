@@ -1,78 +1,214 @@
-import { Outlet, Navigate } from "react-router-dom";
-import { useAuth, UserButton } from "@clerk/clerk-react";
-import { Sidebar, SidebarBody, SidebarLink } from "../beui/animated-sidebar";
-import { LayoutDashboard, KeyRound, CreditCard } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { RedirectToSignIn, UserButton, useAuth, useUser } from "@clerk/clerk-react";
+import { Blocks, CreditCard, LayoutGrid, Menu, MonitorSmartphone, X, type LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { planLabel } from "@/lib/format";
+import { useBilling } from "@/hooks/useAccount";
+import { Logo } from "@/components/brand/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Badge } from "@/components/ui/badge";
+import { FullPageSpinner } from "@/components/ui/spinner";
+
+interface NavItem {
+  label: string;
+  to: string;
+  icon: LucideIcon;
+}
+
+const NAV: NavItem[] = [
+  { label: "Overview", to: "/dashboard", icon: LayoutGrid },
+  { label: "Agents", to: "/agents", icon: Blocks },
+  { label: "Devices", to: "/devices", icon: MonitorSmartphone },
+  { label: "Billing", to: "/billing", icon: CreditCard },
+];
+
+function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <ul className="flex flex-col gap-0.5">
+      {NAV.map(({ label, to, icon: Icon }) => (
+        <li key={to}>
+          <NavLink
+            to={to}
+            onClick={onNavigate}
+            className={({ isActive }) =>
+              cn(
+                "group flex h-8 items-center gap-2.5 rounded-md px-2.5 text-sm transition-colors duration-150",
+                isActive
+                  ? "bg-muted font-medium text-foreground"
+                  : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
+              )
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <Icon
+                  className={cn("size-4 shrink-0", isActive ? "text-foreground" : "text-faint-foreground group-hover:text-foreground")}
+                  aria-hidden
+                />
+                {label}
+              </>
+            )}
+          </NavLink>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function PlanCard() {
+  const { data } = useBilling();
+  if (!data) return <div className="h-[74px]" aria-hidden />;
+
+  const isFree = data.plan === "FREE";
+  return (
+    <div className="rounded-lg border border-border bg-surface p-3 shadow-xs">
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-xs font-medium text-muted-foreground">Plan</span>
+        <Badge variant={isFree ? "neutral" : "accent"}>{planLabel(data.plan)}</Badge>
+      </div>
+      <Link
+        to="/billing"
+        className="mt-2 block text-[13px] font-medium text-foreground underline-offset-4 hover:underline"
+      >
+        {isFree ? "Upgrade to Pro" : "Manage subscription"}
+      </Link>
+    </div>
+  );
+}
+
+function Account() {
+  const { user } = useUser();
+  const name = user?.fullName || user?.primaryEmailAddress?.emailAddress || "Account";
+  const email = user?.primaryEmailAddress?.emailAddress;
+
+  return (
+    <div className="flex min-w-0 items-center gap-2.5">
+      <UserButton appearance={{ elements: { userButtonAvatarBox: { width: "1.75rem", height: "1.75rem" } } }} />
+      <div className="min-w-0 leading-tight">
+        <p className="truncate text-[13px] font-medium text-foreground">{name}</p>
+        {email && email !== name ? <p className="truncate text-xs text-muted-foreground">{email}</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <div className="flex h-full flex-col gap-6 px-3 py-4">
+      <Link to="/dashboard" onClick={onNavigate} className="flex h-8 items-center rounded-md px-1.5" aria-label="SkillManager overview">
+        <Logo />
+      </Link>
+      <nav aria-label="Main" className="flex-1">
+        <NavLinks onNavigate={onNavigate} />
+      </nav>
+      <div className="flex flex-col gap-3">
+        <PlanCard />
+        <div className="flex items-center justify-between gap-2 border-t border-border px-1 pt-3">
+          <Account />
+          <ThemeToggle />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const ref = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  return (
+    <dialog
+      ref={ref}
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target === ref.current) onClose();
+      }}
+      aria-label="Navigation"
+      className={cn(
+        "m-0 h-dvh max-h-dvh w-72 max-w-[85vw] border-r border-border bg-subtle p-0 text-foreground shadow-float",
+        "backdrop:bg-black/40 open:animate-[drawer-in_240ms_var(--ease-out-strong)] lg:hidden",
+      )}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        className="absolute right-3 top-4 inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        aria-label="Close navigation"
+      >
+        <X className="size-4" aria-hidden />
+      </button>
+      <SidebarContent onNavigate={onClose} />
+    </dialog>
+  );
+}
+
+/** Move focus to the new page heading after client-side navigation, so screen readers announce it. */
+function useRouteFocus() {
+  const { pathname } = useLocation();
+  const first = useRef(true);
+
+  useEffect(() => {
+    if (first.current) {
+      first.current = false;
+      return;
+    }
+    const heading = document.querySelector<HTMLElement>("[data-page-title]");
+    heading?.focus({ preventScroll: true });
+    document.getElementById("main")?.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0 });
+  }, [pathname]);
+}
 
 export default function AppShell() {
   const { isLoaded, isSignedIn } = useAuth();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  useRouteFocus();
 
-  if (!isLoaded) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (!isSignedIn) {
-    return <Navigate to="/login" replace />;
-  }
-
-  const links = [
-    {
-      label: "Dashboard",
-      href: "/dashboard",
-      icon: <LayoutDashboard size={24} />,
-    },
-    {
-      label: "Devices",
-      href: "/devices",
-      icon: <KeyRound size={24} />,
-    },
-    {
-      label: "Billing",
-      href: "/billing",
-      icon: <CreditCard size={24} />,
-    },
-  ];
+  if (!isLoaded) return <FullPageSpinner />;
+  // Sends the visitor to /login with a redirect_url back to this page.
+  if (!isSignedIn) return <RedirectToSignIn />;
 
   return (
-    <Sidebar>
-      <SidebarBody className="justify-between gap-10">
-        <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden pt-4">
-          <div className="flex items-center gap-2 mb-10 px-2">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-              <span className="text-primary-foreground font-bold text-sm">SM</span>
-            </div>
-            <span className="font-bold text-lg text-foreground truncate hidden md:block">
-              SkillManager
-            </span>
-          </div>
-          
-          <div className="flex flex-col gap-2">
-            {links.map((link, idx) => (
-              <SidebarLink key={idx} link={link} />
-            ))}
-          </div>
-        </div>
-        
-        <div className="flex items-center justify-center md:justify-start px-2 py-4">
-          <UserButton 
-            afterSignOutUrl="/login"
-            appearance={{
-              elements: {
-                userButtonAvatarBox: "w-10 h-10 border-2 border-border"
-              }
-            }}
-          />
-        </div>
-      </SidebarBody>
-      
-      <main className="flex-1 overflow-y-auto bg-background md:pt-0 pt-16">
-        <div className="h-full p-8">
+    <div className="min-h-dvh bg-background">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 focus:rounded-md focus:bg-foreground focus:px-3 focus:py-2 focus:text-sm focus:text-background"
+      >
+        Skip to content
+      </a>
+
+      <aside className="fixed inset-y-0 left-0 hidden w-60 border-r border-border bg-subtle lg:block">
+        <SidebarContent />
+      </aside>
+
+      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/85 px-4 backdrop-blur-md lg:hidden">
+        <Link to="/dashboard" aria-label="SkillManager overview">
+          <Logo />
+        </Link>
+        <button
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          aria-label="Open navigation"
+          aria-expanded={drawerOpen}
+        >
+          <Menu className="size-5" aria-hidden />
+        </button>
+      </header>
+      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+
+      <main id="main" className="lg:pl-60">
+        <div className="mx-auto w-full max-w-[1080px] px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
           <Outlet />
         </div>
       </main>
-    </Sidebar>
+    </div>
   );
 }

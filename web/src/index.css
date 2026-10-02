@@ -1,61 +1,239 @@
+/* Clerk renders into its own layer so Tailwind utilities can override it. Must precede the import. */
+@layer theme, base, clerk, components, utilities;
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Moss: grey stone neutrals with a muted moss green accent.
+ * Components only use the semantic names below, never raw palette colors,
+ * so both themes stay in sync. Every text pair meets WCAG AA (4.5:1) and
+ * every form control border meets 3:1 against its surface.
+ */
+:root {
+  color-scheme: light;
+
+  --background: oklch(0.975 0.004 110);
+  --surface: oklch(1 0 0);
+  --subtle: oklch(0.955 0.005 110);
+  --muted: oklch(0.935 0.006 110);
+  --border: oklch(0.905 0.008 110);
+  --border-strong: oklch(0.845 0.01 110);
+  --input: oklch(0.64 0.012 120);
+
+  --foreground: oklch(0.22 0.012 120);
+  --muted-foreground: oklch(0.5 0.015 120);
+  /* Meta text and placeholders only, never body copy. */
+  --faint-foreground: oklch(0.54 0.014 120);
+
+  --accent: oklch(0.5 0.1 132);
+  --accent-hover: oklch(0.45 0.095 132);
+  --accent-foreground: oklch(1 0 0);
+  --accent-text: oklch(0.47 0.1 132);
+  --accent-subtle: oklch(0.955 0.03 130);
+  --accent-border: oklch(0.86 0.06 130);
+
+  --mark: oklch(0.5 0.1 132);
+  --mark-foreground: oklch(0.975 0.004 110);
+
+  --success: oklch(0.5 0.11 165);
+  --success-subtle: oklch(0.96 0.025 165);
+  --warning: oklch(0.54 0.13 55);
+  --warning-subtle: oklch(0.965 0.025 60);
+  --danger: oklch(0.52 0.18 27);
+  --danger-hover: oklch(0.47 0.17 27);
+  --danger-subtle: oklch(0.965 0.018 27);
+  --danger-foreground: oklch(1 0 0);
+
+  --ring: oklch(0.47 0.1 132);
+
+  /* The terminal panel stays dark in both themes. */
+  --terminal: oklch(0.19 0.01 130);
+  --terminal-border: oklch(0.29 0.012 130);
+  --terminal-foreground: oklch(0.94 0.006 110);
+  --terminal-muted: oklch(0.7 0.015 120);
+  --terminal-accent: oklch(0.8 0.12 128);
+
+  --elevation-xs: 0 1px 2px 0 oklch(0.22 0.012 120 / 0.05);
+  --elevation-float: 0 0 0 1px oklch(0.22 0.012 120 / 0.05), 0 8px 16px -4px oklch(0.22 0.012 120 / 0.1),
+    0 24px 48px -12px oklch(0.22 0.012 120 / 0.16);
+}
+
+.dark {
+  color-scheme: dark;
+
+  --background: oklch(0.17 0.008 130);
+  --surface: oklch(0.2 0.01 130);
+  --subtle: oklch(0.185 0.009 130);
+  --muted: oklch(0.245 0.012 130);
+  --border: oklch(0.29 0.012 130);
+  --border-strong: oklch(0.35 0.013 130);
+  --input: oklch(0.52 0.014 125);
+
+  --foreground: oklch(0.955 0.006 110);
+  --muted-foreground: oklch(0.73 0.015 120);
+  --faint-foreground: oklch(0.62 0.014 120);
+
+  --accent: oklch(0.8 0.12 128);
+  --accent-hover: oklch(0.85 0.11 128);
+  --accent-foreground: oklch(0.17 0.008 130);
+  --accent-text: oklch(0.8 0.12 128);
+  --accent-subtle: oklch(0.26 0.04 130);
+  --accent-border: oklch(0.4 0.07 130);
+
+  --mark: oklch(0.8 0.12 128);
+  --mark-foreground: oklch(0.17 0.008 130);
+
+  --success: oklch(0.77 0.12 165);
+  --success-subtle: oklch(0.25 0.035 165);
+  --warning: oklch(0.8 0.12 65);
+  --warning-subtle: oklch(0.26 0.04 60);
+  --danger: oklch(0.72 0.15 25);
+  --danger-hover: oklch(0.77 0.13 25);
+  --danger-subtle: oklch(0.26 0.045 25);
+  --danger-foreground: oklch(0.17 0.008 130);
+
+  --ring: oklch(0.8 0.12 128);
+
+  --terminal: oklch(0.2 0.01 130);
+  --terminal-border: oklch(0.3 0.012 130);
+
+  /* Depth in dark mode comes from lighter surfaces, not shadows. */
+  --elevation-xs: 0 0 #0000;
+  --elevation-float: 0 0 0 1px oklch(1 0 0 / 0.06), 0 24px 48px -12px oklch(0 0 0 / 0.6);
+}
+
+@theme inline {
+  /* Only semantic colors exist; the default Tailwind palette is removed on purpose. */
+  --color-*: initial;
+  --color-white: #fff;
+  --color-black: #000;
+
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-subtle: var(--subtle);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-faint-foreground: var(--faint-foreground);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent-text: var(--accent-text);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-border: var(--accent-border);
+  --color-mark: var(--mark);
+  --color-mark-foreground: var(--mark-foreground);
+  --color-success: var(--success);
+  --color-success-subtle: var(--success-subtle);
+  --color-warning: var(--warning);
+  --color-warning-subtle: var(--warning-subtle);
+  --color-danger: var(--danger);
+  --color-danger-hover: var(--danger-hover);
+  --color-danger-subtle: var(--danger-subtle);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-ring: var(--ring);
+  --color-terminal: var(--terminal);
+  --color-terminal-border: var(--terminal-border);
+  --color-terminal-foreground: var(--terminal-foreground);
+  --color-terminal-muted: var(--terminal-muted);
+  --color-terminal-accent: var(--terminal-accent);
+
+  --shadow-xs: var(--elevation-xs);
+  --shadow-float: var(--elevation-float);
+}
+
 @theme {
-  --color-primary: #A259FF;
+  --font-sans: "Hanken Grotesk Variable", "Hanken Grotesk Fallback", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono Variable", "JetBrains Mono Fallback", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --text-13: 0.8125rem;
+  --text-13--line-height: 1.25rem;
+
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --default-transition-duration: 150ms;
+  --default-transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 @layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 266 100% 67%; /* HSL for #A259FF */
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 266 100% 67%;
-    --radius: 0.5rem;
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
   }
- 
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 266 100% 67%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 266 100% 67%;
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    min-height: 100dvh;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  code,
+  kbd,
+  pre {
+    font-family: var(--font-mono);
+    font-variant-ligatures: none;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--accent) 24%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  input::placeholder {
+    color: var(--faint-foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
- 
-@layer base {
-  * {
-    border-color: hsl(var(--border));
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
   }
-  body {
-    background-color: hsl(var(--background)); color: hsl(var(--foreground));
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
   }
 }

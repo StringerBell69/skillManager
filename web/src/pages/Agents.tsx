@@ -1,11 +1,11 @@
 import { AppSeo } from "@/components/seo";
 import { PageHeader } from "@/components/ui/page-header";
 
-export default function Dashboard() {
+export default function Agents() {
   return (
     <>
-      <AppSeo title="Dashboard" />
-      <PageHeader title="Dashboard" />
+      <AppSeo title="Agents" />
+      <PageHeader title="Agents" />
     </>
   );
 }

@@ -1,5 +1,6 @@
 export const queryKeys = {
-  me: ["me"],
-  devices: ["devices"],
-  agents: ["agents"],
+  billing: ["me", "billing"],
+  devices: ["me", "devices"],
+  catalogAgents: ["me", "catalog", "agents"],
+  catalogPacks: ["me", "catalog", "packs"],
 } as const;
