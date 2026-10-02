@@ -4,7 +4,7 @@
 
 [build]
 builder = "RAILPACK"
-buildCommand = "bun install --frozen-lockfile && bun run --filter @skillmanager/shared build && bun run --filter @skillmanager/api db:generate && bun run --filter @skillmanager/api build"
+buildCommand = "bun install && bun run --filter @skillmanager/shared build && bun run --filter @skillmanager/api db:generate && bun run --filter @skillmanager/api build"
 
 [deploy]
 startCommand = "bun run --filter @skillmanager/api db:deploy && bun run --filter @skillmanager/api start:prod"
