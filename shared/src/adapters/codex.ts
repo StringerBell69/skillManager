@@ -4,7 +4,7 @@ import type { Adapter } from "./types.js";
 /**
  * OpenAI Codex / AGENTS.md adapter.
  *
- * Format reference (2025–2026):
+ * Format reference (2025-2026):
  * - AGENTS.md at the project root (or nested for monorepos)
  * - Plain markdown, no special frontmatter required
  * - Codex reads it hierarchically: root → nested directories

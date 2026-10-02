@@ -71,7 +71,7 @@ export class PacksController {
   }
 
   /**
-   * Get a pack's bundle — returns all agents in the pack,
+   * Get a pack's bundle: returns all agents in the pack,
    * rendered for the requested targets.
    */
   @Get(":slug/bundle")

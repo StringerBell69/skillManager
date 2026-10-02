@@ -1,7 +1,7 @@
 /**
  * Production migrate entrypoint for Railway.
  * If the DB already has schema (Supabase / prior db push), Prisma P3005 is
- * handled once by baselining the init migration — later deploys stay no-op
+ * handled once by baselining the init migration, so later deploys stay no-op
  * until a new migration is added.
  */
 import { execSync } from "node:child_process";

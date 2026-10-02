@@ -4,7 +4,7 @@ import type { Adapter } from "./types.js";
 /**
  * Cursor adapter (.cursor/rules/*.mdc).
  *
- * Format reference (2025–2026):
+ * Format reference (2025-2026):
  * - Location: .cursor/rules/<name>.mdc
  * - Format: YAML frontmatter + Markdown body
  * - Frontmatter fields:

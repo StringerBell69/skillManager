@@ -11,7 +11,7 @@ const program = new Command();
 
 program
   .name("skillmanager")
-  .description("SkillManager CLI — Install AI agents into your coding tools")
+  .description("SkillManager CLI: install AI agents into your coding tools")
   .version("0.1.0");
 
 program
