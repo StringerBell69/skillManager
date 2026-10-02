@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { RedirectToSignIn, UserButton, useAuth, useUser } from "@clerk/clerk-react";
-import { Blocks, CreditCard, LayoutGrid, Menu, MonitorSmartphone, X, type LucideIcon } from "lucide-react";
+import { Blocks, CreditCard, LayoutGrid, Menu, MonitorSmartphone, Search, Settings, X, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { planLabel } from "@/lib/format";
 import { useBilling } from "@/hooks/useAccount";
@@ -9,6 +9,8 @@ import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
 import { FullPageSpinner } from "@/components/ui/spinner";
+import { CommandMenu } from "@/components/command-menu";
+import { commandMenuShortcut } from "@/lib/platform";
 
 interface NavItem {
   label: string;
@@ -21,6 +23,7 @@ const NAV: NavItem[] = [
   { label: "Agents", to: "/agents", icon: Blocks },
   { label: "Devices", to: "/devices", icon: MonitorSmartphone },
   { label: "Billing", to: "/billing", icon: CreditCard },
+  { label: "Settings", to: "/settings", icon: Settings },
 ];
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
@@ -84,7 +87,11 @@ function Account() {
 
   return (
     <div className="flex min-w-0 items-center gap-2.5">
-      <UserButton appearance={{ elements: { userButtonAvatarBox: { width: "1.75rem", height: "1.75rem" } } }} />
+      <UserButton
+        userProfileMode="navigation"
+        userProfileUrl="/settings"
+        appearance={{ elements: { userButtonAvatarBox: { width: "1.75rem", height: "1.75rem" } } }}
+      />
       <div className="min-w-0 leading-tight">
         <p className="truncate text-[13px] font-medium text-foreground">{name}</p>
         {email && email !== name ? <p className="truncate text-xs text-muted-foreground">{email}</p> : null}
@@ -93,12 +100,32 @@ function Account() {
   );
 }
 
-function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
+function SearchButton({ onClick }: { onClick: () => void }) {
   return (
-    <div className="flex h-full flex-col gap-6 px-3 py-4">
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex h-8 w-full items-center gap-2 rounded-md border border-border bg-surface px-2.5 text-sm text-muted-foreground shadow-xs transition-colors duration-150 hover:text-foreground"
+    >
+      <Search className="size-4 shrink-0" aria-hidden />
+      <span className="min-w-0 flex-1 truncate text-left">Search…</span>
+      <kbd className="font-mono text-[11px] text-faint-foreground">{commandMenuShortcut()}</kbd>
+    </button>
+  );
+}
+
+function SidebarContent({ onNavigate, onSearch }: { onNavigate?: () => void; onSearch: () => void }) {
+  return (
+    <div className="flex h-full flex-col gap-5 px-3 py-4">
       <Link to="/dashboard" onClick={onNavigate} className="flex h-8 items-center rounded-md px-1.5" aria-label="SkillManager overview">
         <Logo />
       </Link>
+      <SearchButton
+        onClick={() => {
+          onNavigate?.();
+          onSearch();
+        }}
+      />
       <nav aria-label="Main" className="flex-1">
         <NavLinks onNavigate={onNavigate} />
       </nav>
@@ -116,7 +143,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   );
 }
 
-function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+function MobileDrawer({ open, onClose, onSearch }: { open: boolean; onClose: () => void; onSearch: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -147,7 +174,7 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
       >
         <X className="size-4" aria-hidden />
       </button>
-      <SidebarContent onNavigate={onClose} />
+      <SidebarContent onNavigate={onClose} onSearch={onSearch} />
     </dialog>
   );
 }
@@ -171,6 +198,7 @@ function useRouteFocus() {
 export default function AppShell() {
   const { isLoaded, isSignedIn } = useAuth();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   useRouteFocus();
 
   if (!isLoaded) return <FullPageSpinner />;
@@ -187,24 +215,35 @@ export default function AppShell() {
       </a>
 
       <aside className="fixed inset-y-0 left-0 hidden w-60 border-r border-border bg-subtle lg:block">
-        <SidebarContent />
+        <SidebarContent onSearch={() => setMenuOpen(true)} />
       </aside>
 
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/85 px-4 backdrop-blur-md lg:hidden">
         <Link to="/dashboard" aria-label="SkillManager overview">
           <Logo />
         </Link>
-        <button
-          type="button"
-          onClick={() => setDrawerOpen(true)}
-          className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-          aria-label="Open navigation"
-          aria-expanded={drawerOpen}
-        >
-          <Menu className="size-5" aria-hidden />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            className="inline-flex size-10 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Search"
+          >
+            <Search className="size-5" aria-hidden />
+          </button>
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="inline-flex size-10 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Open navigation"
+            aria-expanded={drawerOpen}
+          >
+            <Menu className="size-5" aria-hidden />
+          </button>
+        </div>
       </header>
-      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <MobileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} onSearch={() => setMenuOpen(true)} />
+      <CommandMenu open={menuOpen} onOpenChange={setMenuOpen} />
 
       <main id="main" className="lg:pl-60">
         <div className="mx-auto w-full max-w-[1080px] px-4 py-8 sm:px-6 lg:px-10 lg:py-10">

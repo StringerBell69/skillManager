@@ -15,6 +15,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Agents = lazy(() => import("./pages/Agents"));
 const Devices = lazy(() => import("./pages/Devices"));
 const Billing = lazy(() => import("./pages/Billing"));
+const Settings = lazy(() => import("./pages/Settings"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function PageFallback() {
@@ -52,6 +53,7 @@ export default function AppRoutes() {
           <Route path="/agents" element={<Page><Agents /></Page>} />
           <Route path="/devices" element={<Page><Devices /></Page>} />
           <Route path="/billing" element={<Page><Billing /></Page>} />
+          <Route path="/settings/*" element={<Page><Settings /></Page>} />
         </Route>
       </Route>
 

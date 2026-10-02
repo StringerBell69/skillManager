@@ -103,7 +103,7 @@ bun run dev:web                # http://localhost:3000
 cd web && bun run build        # type-checks, builds, and prerenders the landing page
 ```
 
-The build writes `dist/index.html` (prerendered landing page), `dist/app.html` (shell for signed-in routes, marked `noindex`), `dist/404.html`, `robots.txt`, and `sitemap.xml`. Configure the host to serve `app.html` for `/dashboard`, `/agents`, `/devices`, `/billing`, `/cli`, `/login`, and `/signup` (including sub-paths), and `404.html` with a 404 status for unknown paths. `web/public/_redirects` does this on Netlify and Cloudflare Pages. See `web/DESIGN.md` for the design system.
+The build writes `dist/index.html` and `dist/pricing/index.html` (prerendered public pages), `dist/app.html` (shell for signed-in routes, marked `noindex`), `dist/404.html`, `robots.txt`, and `sitemap.xml`. Configure the host to serve `app.html` for `/dashboard`, `/agents`, `/devices`, `/billing`, `/settings`, `/cli`, `/login`, and `/signup` (including sub-paths), and `404.html` with a 404 status for unknown paths. `web/public/_redirects` does this on Netlify and Cloudflare Pages. See `web/DESIGN.md` for the design system.
 
 ## Auth Flow
 

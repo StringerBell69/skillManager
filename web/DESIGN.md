@@ -56,7 +56,8 @@ Commands, device codes, file paths, versions, and IDs use `font-mono`. Numbers t
 
 - Hover and color: 150ms. Dialogs: 200ms. Drawers: 240ms. Easing `var(--ease-out-strong)`.
 - Animate only `transform`, `opacity`, and colors; never `transition-all`.
-- No scroll-triggered fade-ins, parallax, typing loops, or hover lifts. Nothing above the fold starts invisible.
+- No scroll-triggered fade-ins, parallax, or hover lifts. Nothing above the fold starts invisible.
+- One orchestrated moment: the home page's install workflow (`components/landing/install-flow.tsx`) and the autoplaying "How it works" steps. Both replay real CLI output only, show their finished frame in prerendered HTML and with reduced motion, pause off screen and in background tabs, and have a visible Pause control.
 - `prefers-reduced-motion` is respected globally.
 
 ## Components (`src/components`)
@@ -69,6 +70,7 @@ Commands, device codes, file paths, versions, and IDs use `font-mono`. Numbers t
 - `ui/alert`, `ui/empty-state`, `ui/skeleton`, `ui/spinner`, `ui/meter`, `ui/segmented-control`, `ui/page-header`.
 - `seo`: `Seo` for public pages, `AppSeo` for signed-in pages (always `noindex`). One per page.
 - `status-screen`: full-page message for standalone flows.
+- `command-menu`: the ⌘K / Ctrl K menu in the app shell (pages, agents, copyable commands, theme, account).
 
 ## Content
 
