@@ -49,7 +49,7 @@ function DeviceRow({ device }: { device: DeviceInfo }) {
 
 function RowsSkeleton() {
   return (
-    <ul className="divide-y divide-border border-t border-border" aria-hidden>
+    <ul className="list-inset border-t border-border [--list-inset:1.25rem]" aria-hidden>
       {Array.from({ length: LIMIT }, (_, index) => (
         <li key={index} className="flex items-center justify-between gap-4 px-5 py-3">
           <div className="flex flex-col gap-1.5 py-0.5">
@@ -84,7 +84,7 @@ export function RecentDevicesCard() {
             <Command command="sm login" label="Copy sign-in command" className="mt-3" />
           </div>
         ) : (
-          <ul className="divide-y divide-border border-t border-border">
+          <ul className="list-inset border-t border-border [--list-inset:1.25rem]">
             {recent.map((device) => (
               <DeviceRow key={device.id} device={device} />
             ))}

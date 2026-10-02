@@ -214,7 +214,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
         }}
         aria-label="Command menu"
         className={cn(
-          "mx-auto mt-[12vh] w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-xl border border-border bg-surface p-0 text-foreground shadow-float",
+          "mx-auto mt-[12vh] w-[calc(100%-2rem)] max-w-xl overflow-hidden rounded-2xl border border-card-edge bg-surface p-0 text-foreground shadow-float",
           "backdrop:bg-black/40 dark:backdrop:bg-black/60 open:animate-[dialog-in_160ms_var(--ease-out-strong)]",
         )}
       >
@@ -240,7 +240,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
             spellCheck={false}
             className="h-12 min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-faint-foreground"
           />
-          <kbd className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground sm:inline">Esc</kbd>
+          <kbd className="hidden rounded-md bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground sm:inline">Esc</kbd>
         </div>
 
         <div id={listId} role="listbox" aria-label="Results" className="max-h-[min(60vh,420px)] overflow-y-auto p-2">
@@ -268,7 +268,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
                       onMouseMove={() => setActiveIndex(visible.indexOf(action))}
                       onClick={() => action.run()}
                       className={cn(
-                        "flex h-10 cursor-pointer items-center gap-3 rounded-md px-2.5 text-sm",
+                        "flex h-10 cursor-pointer items-center gap-3 rounded-[10px] px-2.5 text-sm",
                         selected ? "bg-muted text-foreground" : "text-muted-foreground",
                       )}
                     >
@@ -297,9 +297,12 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
       </dialog>
 
       {/* Feedback for actions that do not change the page (copy, theme). */}
-      <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
+      <div
+        aria-live="polite"
+        className="pointer-events-none fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 flex justify-center px-4 lg:bottom-6"
+      >
         {toast ? (
-          <p className="animate-[fade-in_200ms_var(--ease-out-strong)] rounded-lg border border-border bg-surface px-4 py-2.5 text-13 text-foreground shadow-float">
+          <p className="animate-[fade-in_200ms_var(--ease-out-strong)] rounded-full border border-card-edge bg-surface px-4 py-2.5 text-13 text-foreground shadow-float">
             {toast}
           </p>
         ) : null}

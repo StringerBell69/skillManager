@@ -229,7 +229,7 @@ function FanWires({ active }: { active: boolean[] }) {
 
 function CatalogColumn({ scene }: { scene: Scene }) {
   return (
-    <div className="rounded-lg border border-border bg-subtle p-2.5">
+    <div className="rounded-xl border border-card-edge bg-subtle p-2">
       <div className="flex items-center justify-between gap-2 px-1.5 pb-2.5 pt-1">
         <span className="text-xs font-medium text-muted-foreground">Your catalog</span>
         <Badge variant="neutral">Free plan</Badge>
@@ -242,8 +242,8 @@ function CatalogColumn({ scene }: { scene: Scene }) {
             <li
               key={item.slug}
               className={cn(
-                "flex items-center gap-3 rounded-md border bg-surface px-3 py-2.5 transition-[border-color,background-color] duration-300",
-                active ? "border-accent-border bg-accent-subtle" : "border-border",
+                "flex items-center gap-3 rounded-[14px] border bg-surface px-3 py-2.5 transition-[border-color,background-color] duration-300",
+                active ? "border-accent-border bg-accent-subtle" : "border-card-edge",
               )}
             >
               <Icon className="size-4 shrink-0 text-muted-foreground" aria-hidden />
@@ -263,7 +263,7 @@ function CatalogColumn({ scene }: { scene: Scene }) {
             </li>
           );
         })}
-        <li className="flex items-center gap-3 rounded-md border border-dashed border-border-strong px-3 py-2.5">
+        <li className="flex items-center gap-3 rounded-[14px] border border-dashed border-border-strong px-3 py-2.5">
           <Lock className="size-4 shrink-0 text-faint-foreground" aria-hidden />
           <div className="min-w-0 flex-1">
             <p className="truncate font-mono text-[12.5px] text-muted-foreground">{LOCKED.slug}</p>
@@ -282,8 +282,8 @@ function ToolRow({ tool, received, writing }: { tool: Tool; received: number; wr
   return (
     <li
       className={cn(
-        "flex h-[84px] items-start gap-3 rounded-lg border bg-surface px-3.5 py-3 transition-[border-color] duration-300",
-        writing ? "border-accent-border" : "border-border",
+        "flex h-[84px] items-start gap-3 rounded-lg border bg-surface px-3.5 py-3 shadow-xs transition-[border-color] duration-300",
+        writing ? "border-accent-border" : "border-card-edge",
       )}
     >
       <div className="min-w-0 flex-1">
@@ -325,7 +325,7 @@ export function InstallFlow({ className }: { className?: string }) {
   const scene = animated ? sceneAt(clock) : FINAL_SCENE;
 
   return (
-    <figure className={cn("rounded-xl border border-border bg-surface shadow-xs", className)}>
+    <figure className={cn("rounded-2xl border border-card-edge bg-surface shadow-card", className)}>
       <figcaption className="flex min-h-12 items-center justify-between gap-3 border-b border-border px-4 sm:px-5">
         <span className="text-13 text-muted-foreground">
           Example: <code className="font-mono text-[12.5px] text-foreground">sm install</code> in a new project on the
@@ -336,7 +336,7 @@ export function InstallFlow({ className }: { className?: string }) {
             type="button"
             onClick={() => setPaused((value) => !value)}
             aria-pressed={paused}
-            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-13 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            className="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-13 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             {paused ? <Play className="size-3.5" aria-hidden /> : <Pause className="size-3.5" aria-hidden />}
             {paused ? "Play" : "Pause"}
@@ -360,7 +360,7 @@ export function InstallFlow({ className }: { className?: string }) {
         <CatalogColumn scene={scene} />
         <InboundWire active={scene.sending >= 0} />
 
-        <div className="flex min-h-[300px] flex-col overflow-hidden rounded-lg border border-terminal-border bg-terminal text-terminal-foreground lg:h-[360px]">
+        <div className="flex min-h-[300px] flex-col overflow-hidden rounded-xl border border-terminal-border bg-terminal text-terminal-foreground lg:h-[360px]">
           <div className="flex h-9 shrink-0 items-center border-b border-terminal-border px-3.5 text-xs text-terminal-muted">
             ~/projects/acme-api
           </div>

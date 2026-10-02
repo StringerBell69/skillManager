@@ -101,7 +101,7 @@ export default function Devices() {
               </div>
 
               {data.devices.length === 0 ? (
-                <div className="rounded-lg border border-border bg-surface shadow-xs">
+                <div className="rounded-xl border border-card-edge bg-surface shadow-card">
                   <EmptyState
                     icon={MonitorSmartphone}
                     title="No devices connected"

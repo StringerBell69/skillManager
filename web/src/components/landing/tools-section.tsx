@@ -34,7 +34,7 @@ function ToolsTable() {
       role="region"
       aria-labelledby="tools-table-caption"
       tabIndex={0}
-      className="relative mt-12 overflow-x-auto rounded-lg border border-border bg-surface shadow-xs"
+      className="relative mt-12 overflow-x-auto rounded-2xl border border-card-edge bg-surface shadow-card"
     >
       <table className="w-full min-w-[720px] border-collapse text-13">
         <caption id="tools-table-caption" className="sr-only">
@@ -105,7 +105,7 @@ const AGENTS_MD: Array<{ text: string; managed: boolean; tone?: "marker" | "mute
 
 function MarkedFile() {
   return (
-    <figure className="min-w-0 overflow-hidden rounded-lg border border-border bg-surface shadow-xs">
+    <figure className="min-w-0 overflow-hidden rounded-2xl border border-card-edge bg-surface shadow-card">
       <figcaption className="flex h-10 items-center justify-between gap-4 border-b border-border bg-subtle px-4 text-xs">
         <span className="font-mono text-foreground">AGENTS.md</span>
         <span className="text-muted-foreground">Example</span>

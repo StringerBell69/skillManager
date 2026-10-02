@@ -62,9 +62,9 @@ function CatalogSkeleton() {
       <span className="sr-only">Loading agents…</span>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" aria-hidden>
         <Skeleton className="h-9 w-full sm:w-80" />
-        <Skeleton className="h-9 w-72 max-w-full rounded-lg" />
+        <Skeleton className="h-9 w-72 max-w-full rounded-full" />
       </div>
-      <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-surface shadow-xs" aria-hidden>
+      <ul className="mt-4 rounded-xl border border-card-edge bg-surface shadow-card list-inset [--list-inset:1rem] sm:[--list-inset:1.25rem]" aria-hidden>
         {Array.from({ length: 5 }, (_, index) => (
           <li key={index} className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:justify-between sm:gap-8 sm:px-5">
             <div className="min-w-0 flex-1">
@@ -84,7 +84,7 @@ function CatalogSkeleton() {
   );
 }
 
-const EMPTY_FRAME = "rounded-lg border border-border bg-surface shadow-xs";
+const EMPTY_FRAME = "rounded-xl border border-card-edge bg-surface shadow-card";
 
 export function AgentCatalog() {
   const agents = useCatalogAgents();
@@ -164,7 +164,7 @@ export function AgentCatalog() {
               Search agents
             </label>
             <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-faint-foreground"
+              className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-faint-foreground"
               aria-hidden
             />
             <input
@@ -176,7 +176,7 @@ export function AgentCatalog() {
               placeholder="Search by name or description…"
               autoComplete="off"
               spellCheck={false}
-              className="h-9 w-full rounded-md border border-input bg-surface pl-9 pr-3 text-sm text-foreground shadow-xs"
+              className="h-9 w-full rounded-full border border-input bg-surface pl-10 pr-4 text-sm text-foreground shadow-xs"
             />
           </div>
           <div className="-m-1 max-w-[calc(100%+0.5rem)] overflow-x-auto p-1 sm:shrink-0">
@@ -204,7 +204,7 @@ export function AgentCatalog() {
         {visible.length > 0 ? (
           <ul
             className={cn(
-              "divide-y divide-border rounded-lg border border-border bg-surface shadow-xs transition-opacity duration-150",
+              "list-inset overflow-hidden rounded-xl border border-card-edge bg-surface shadow-card transition-opacity duration-150 [--list-inset:1rem] sm:[--list-inset:1.25rem]",
               isFiltering && "opacity-70",
             )}
           >

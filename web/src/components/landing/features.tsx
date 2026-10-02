@@ -9,7 +9,7 @@ import { MiniTerminal } from "./scenes";
 
 function Tile({ title, children, visual, className }: { title: string; children: ReactNode; visual?: ReactNode; className?: string }) {
   return (
-    <article className={cn("flex flex-col rounded-xl border border-border bg-surface p-5 shadow-xs sm:p-6", className)}>
+    <article className={cn("flex flex-col rounded-2xl border border-card-edge bg-surface p-6 shadow-card sm:p-7", className)}>
       <h3 className="text-[17px] font-semibold tracking-tight text-foreground">{title}</h3>
       <p className="mt-2 max-w-[56ch] text-sm leading-6 text-muted-foreground">{children}</p>
       {visual ? <div className="mt-6 flex-1">{visual}</div> : null}
@@ -91,7 +91,7 @@ function DeviceList() {
         <span>Device</span>
         <span>Last used</span>
       </div>
-      <ul className="divide-y divide-border">
+      <ul className="list-inset [--list-inset:2.25rem]">
         {DEVICES.map((device) => (
           <li key={device.name} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3.5 py-2.5 text-13">
             <span className="flex min-w-0 items-center gap-2">
@@ -165,7 +165,7 @@ export function Features() {
           The catalog holds three kinds of items. <Code>sm install</Code> writes each kind where the tool expects it.
         </Tile>
 
-        <div className="rounded-xl border border-border bg-surface shadow-xs lg:col-span-12">
+        <div className="rounded-2xl border border-card-edge bg-surface shadow-card lg:col-span-12">
           <dl className="grid divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
             {FLAGS.map(({ flag, body }) => (
               <div key={flag} className="p-5 sm:p-6">

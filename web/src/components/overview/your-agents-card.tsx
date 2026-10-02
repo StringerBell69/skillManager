@@ -8,7 +8,7 @@ const LIMIT = 5;
 
 function RowsSkeleton() {
   return (
-    <ul className="divide-y divide-border border-t border-border" aria-hidden>
+    <ul className="list-inset border-t border-border [--list-inset:1.25rem]" aria-hidden>
       {Array.from({ length: LIMIT }, (_, index) => (
         <li key={index} className="flex h-12 items-center justify-between gap-4 px-5">
           <Skeleton className="h-4 w-40" />
@@ -38,7 +38,7 @@ export function YourAgentsCard() {
               : "No agents are published yet."}
           </p>
         ) : (
-          <ul className="divide-y divide-border border-t border-border">
+          <ul className="list-inset border-t border-border [--list-inset:1.25rem]">
             {agents.slice(0, LIMIT).map((agent) => (
               <li key={agent.slug} className="flex min-h-12 items-center justify-between gap-4 px-5 py-2.5">
                 <p className="min-w-0 truncate text-sm font-medium text-foreground">{agent.name || agent.slug}</p>

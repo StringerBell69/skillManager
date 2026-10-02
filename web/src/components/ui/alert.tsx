@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 const alertVariants = cva("flex flex-wrap gap-x-3 gap-y-2 rounded-lg border px-4 py-3 text-sm", {
   variants: {
     tone: {
-      info: "border-border bg-subtle text-foreground [&>svg]:text-muted-foreground",
+      info: "border-card-edge bg-subtle text-foreground [&>svg]:text-muted-foreground",
       success: "border-transparent bg-success-subtle text-foreground [&>svg]:text-success",
       warning: "border-transparent bg-warning-subtle text-foreground [&>svg]:text-warning",
       danger: "border-transparent bg-danger-subtle text-foreground [&>svg]:text-danger",

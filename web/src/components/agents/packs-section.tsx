@@ -36,7 +36,7 @@ function PackCard({ pack, userPlan }: { pack: PackListItem; userPlan: Plan | nul
             {shown.map((slug, index) => (
               <li
                 key={`${index}:${slug}`}
-                className="max-w-full truncate rounded-md border border-border bg-subtle px-1.5 py-0.5 font-mono text-xs text-muted-foreground"
+                className="max-w-full truncate rounded-full bg-muted px-2 py-0.5 font-mono text-xs text-muted-foreground"
               >
                 {slug}
               </li>

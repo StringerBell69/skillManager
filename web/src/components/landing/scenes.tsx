@@ -166,14 +166,14 @@ export function SignInScene({ elapsed }: SceneProps) {
 
       <div className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-background">
         <div className="flex h-9 shrink-0 items-center border-b border-border bg-subtle px-3">
-          <span className="min-w-0 flex-1 truncate rounded-md bg-surface px-2 py-0.5 text-center text-xs text-muted-foreground">
+          <span className="min-w-0 flex-1 truncate rounded-full bg-surface px-3 py-0.5 text-center text-xs text-muted-foreground">
             {VERIFY_HOST}
           </span>
         </div>
         <div className="flex flex-1 flex-col justify-center px-5 py-6">
           {approved ? (
             <div className="animate-[fade-in_300ms_var(--ease-out-strong)]">
-              <span className="flex size-8 items-center justify-center rounded-md bg-success-subtle text-success">
+              <span className="flex size-8 items-center justify-center rounded-full bg-success-subtle text-success">
                 <Check className="size-4" aria-hidden />
               </span>
               <p className="mt-4 text-[15px] font-semibold tracking-tight text-foreground">Device authorized</p>
@@ -189,13 +189,13 @@ export function SignInScene({ elapsed }: SceneProps) {
               <div className="mt-4 flex gap-2">
                 <span
                   className={cn(
-                    "inline-flex h-8 items-center rounded-md bg-accent px-3 text-13 font-medium text-accent-foreground transition-[background-color,scale] duration-150",
+                    "inline-flex h-8 items-center rounded-full bg-accent px-3.5 text-13 font-medium text-accent-foreground transition-[background-color,scale] duration-150",
                     pressing && "scale-[0.97] bg-accent-hover",
                   )}
                 >
                   Authorize device
                 </span>
-                <span className="inline-flex h-8 items-center rounded-md border border-border-strong bg-surface px-3 text-13 font-medium text-foreground">
+                <span className="inline-flex h-8 items-center rounded-full bg-muted px-3.5 text-13 font-medium text-foreground">
                   Deny
                 </span>
               </div>
@@ -233,7 +233,7 @@ const TREE: TreeLine[] = [
 
 export function ProjectTreeScene() {
   return (
-    <div className="flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-surface">
+    <div className="flex min-h-[420px] min-w-0 flex-col overflow-hidden rounded-xl border border-card-edge bg-surface shadow-card">
       <div className="flex h-9 shrink-0 items-center justify-between border-b border-border bg-subtle px-3.5 text-xs text-muted-foreground">
         <span>acme-api</span>
         <span className="flex items-center gap-1.5">

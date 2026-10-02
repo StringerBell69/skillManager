@@ -78,7 +78,7 @@ export function SetupCard({ connected, loading = false }: SetupCardProps) {
                 )}
                 <span
                   className={cn(
-                    "relative flex size-6 items-center justify-center rounded-md border text-xs font-medium tabular",
+                    "relative flex size-6 items-center justify-center rounded-full border text-xs font-medium tabular",
                     done
                       ? "border-transparent bg-success-subtle text-success"
                       : "border-border-strong bg-surface text-muted-foreground",

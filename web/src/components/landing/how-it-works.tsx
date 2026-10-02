@@ -83,7 +83,7 @@ export function HowItWorks() {
             type="button"
             onClick={() => setPaused((value) => !value)}
             aria-pressed={paused}
-            className="inline-flex h-8 shrink-0 items-center gap-1.5 self-start rounded-md px-2.5 text-13 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:self-auto"
+            className="inline-flex h-8 shrink-0 items-center gap-1.5 self-start rounded-full px-3 text-13 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:self-auto"
           >
             {paused ? <Play className="size-3.5" aria-hidden /> : <Pause className="size-3.5" aria-hidden />}
             {paused ? "Resume" : "Pause"}

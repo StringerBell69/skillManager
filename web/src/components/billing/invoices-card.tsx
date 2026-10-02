@@ -42,7 +42,7 @@ function InvoiceRow({ invoice }: { invoice: BillingInvoice }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Download invoice ${reference} as PDF`}
-            className="-mr-2 inline-flex h-8 items-center gap-1.5 rounded-md px-2 font-medium text-accent-text transition-colors duration-150 hover:bg-muted"
+            className="-mr-3 inline-flex h-8 items-center gap-1.5 rounded-full px-3 font-medium text-accent-text transition-colors duration-150 hover:bg-muted"
           >
             <Download className="size-3.5" aria-hidden />
             PDF

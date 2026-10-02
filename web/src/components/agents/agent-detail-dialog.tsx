@@ -39,7 +39,7 @@ export function AgentDetailDialog({ agent, onClose }: AgentDetailDialogProps) {
             <h3 id="agent-targets-title" className="text-13 font-medium text-foreground">
               Where it is installed
             </h3>
-            <ul className="mt-2 divide-y divide-border rounded-lg border border-border">
+            <ul className="mt-2 list-inset rounded-lg bg-subtle [--list-inset:0.875rem]">
               {targets.map((target) => (
                 <li key={target.tool} className="flex flex-col gap-0.5 px-3.5 py-2.5 sm:flex-row sm:items-center sm:gap-4">
                   <span className="w-24 shrink-0 text-13 font-medium text-foreground">{target.tool}</span>

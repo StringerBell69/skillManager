@@ -17,8 +17,10 @@
   --surface: oklch(1 0 0);
   --subtle: oklch(0.955 0.005 110);
   --muted: oklch(0.935 0.006 110);
-  --border: oklch(0.905 0.008 110);
-  --border-strong: oklch(0.845 0.01 110);
+  --border: oklch(0.92 0.007 110);
+  --border-strong: oklch(0.86 0.009 110);
+  /* Card edges: barely there. Cards read through contrast and a soft shadow, not outlines. */
+  --card-edge: oklch(0.22 0.012 120 / 0.06);
   --input: oklch(0.64 0.012 120);
 
   --foreground: oklch(0.22 0.012 120);
@@ -55,9 +57,10 @@
   --terminal-accent: oklch(0.8 0.12 128);
   --terminal-warning: oklch(0.83 0.12 80);
 
-  --elevation-xs: 0 1px 2px 0 oklch(0.22 0.012 120 / 0.05);
-  --elevation-float: 0 0 0 1px oklch(0.22 0.012 120 / 0.05), 0 8px 16px -4px oklch(0.22 0.012 120 / 0.1),
-    0 24px 48px -12px oklch(0.22 0.012 120 / 0.16);
+  --elevation-xs: 0 1px 2px 0 oklch(0.22 0.012 120 / 0.06);
+  --elevation-card: 0 1px 2px oklch(0.22 0.012 120 / 0.04), 0 6px 20px -8px oklch(0.22 0.012 120 / 0.08);
+  --elevation-float: 0 0 0 0.5px oklch(0.22 0.012 120 / 0.08), 0 4px 12px -4px oklch(0.22 0.012 120 / 0.08),
+    0 24px 56px -16px oklch(0.22 0.012 120 / 0.24);
 }
 
 .dark {
@@ -67,8 +70,9 @@
   --surface: oklch(0.2 0.01 130);
   --subtle: oklch(0.185 0.009 130);
   --muted: oklch(0.245 0.012 130);
-  --border: oklch(0.29 0.012 130);
+  --border: oklch(0.285 0.012 130);
   --border-strong: oklch(0.35 0.013 130);
+  --card-edge: oklch(1 0 0 / 0.07);
   --input: oklch(0.52 0.014 125);
 
   --foreground: oklch(0.955 0.006 110);
@@ -101,6 +105,7 @@
 
   /* Depth in dark mode comes from lighter surfaces, not shadows. */
   --elevation-xs: 0 0 #0000;
+  --elevation-card: 0 0 #0000;
   --elevation-float: 0 0 0 1px oklch(1 0 0 / 0.06), 0 24px 48px -12px oklch(0 0 0 / 0.6);
 }
 
@@ -145,7 +150,9 @@
   --color-terminal-warning: var(--terminal-warning);
 
   --shadow-xs: var(--elevation-xs);
+  --shadow-card: var(--elevation-card);
   --shadow-float: var(--elevation-float);
+  --color-card-edge: var(--card-edge);
 }
 
 @theme {
@@ -156,6 +163,16 @@
   --text-13--line-height: 1.25rem;
 
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  /* The curve iOS uses for sheets: fast start, long soft landing. */
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Rounder, Apple-like corners. Controls 10, inner blocks 16, cards and dialogs 22, large panels 28. */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.375rem;
+  --radius-2xl: 1.75rem;
+  --radius-3xl: 2.25rem;
   --default-transition-duration: 150ms;
   --default-transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -174,6 +191,9 @@
 
   body {
     min-height: 100dvh;
+    /* viewport-fit=cover lets backgrounds run edge to edge; this keeps content clear of a landscape notch. */
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
@@ -234,12 +254,6 @@
   }
 }
 
-@keyframes drawer-in {
-  from {
-    transform: translateX(-100%);
-  }
-}
-
 /* Dashes travelling along a connector line. */
 @keyframes wire {
   to {
@@ -251,5 +265,30 @@
   from {
     opacity: 0;
     transform: translateY(2px);
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+/*
+ * iOS-style list separators: inset from the leading edge so they line up with
+ * the text, instead of running the full width of the group.
+ */
+@utility list-inset {
+  & > * + * {
+    position: relative;
+  }
+  & > * + *::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: var(--list-inset, 1rem);
+    border-top: 1px solid var(--border);
+    pointer-events: none;
   }
 }

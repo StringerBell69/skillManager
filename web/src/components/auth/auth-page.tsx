@@ -25,7 +25,7 @@ export function AuthPage({ children, footer }: { children: ReactNode; footer?: R
 
 export function AuthCardSkeleton() {
   return (
-    <div className="w-full rounded-xl border border-border bg-surface p-8" aria-hidden>
+    <div className="w-full rounded-xl border border-card-edge bg-surface p-8 shadow-card" aria-hidden>
       <Skeleton className="mx-auto h-5 w-40" />
       <Skeleton className="mx-auto mt-3 h-4 w-56" />
       <Skeleton className="mt-8 h-9 w-full" />

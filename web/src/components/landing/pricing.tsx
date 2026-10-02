@@ -64,7 +64,7 @@ interface PlanProps {
 function Plan({ id, name, heading: Heading, aside, price, children, action, className }: PlanProps) {
   return (
     <li className="flex">
-      <Card className={cn("flex w-full flex-col p-6 sm:p-8", className)} aria-labelledby={id}>
+      <Card className={cn("flex w-full flex-col rounded-2xl p-6 sm:p-8", className)} aria-labelledby={id}>
         <div className="flex min-h-9 flex-wrap items-center justify-between gap-3">
           <Heading id={id} className="text-[28px] font-semibold leading-9 tracking-[-0.02em] text-foreground">
             {name}
@@ -151,7 +151,7 @@ export function PlanCards({ className, heading = "h3" }: { className?: string; h
         </Plan>
       </ul>
 
-      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-lg border border-dashed border-border-strong px-6 py-4 sm:px-8">
+      <div className="mt-4 flex flex-wrap items-center gap-3 rounded-2xl border border-dashed border-border-strong px-6 py-4 sm:px-8">
         <Heading className="text-[15px] font-semibold tracking-tight text-foreground">Team</Heading>
         <Badge variant="neutral">Coming soon</Badge>
       </div>
@@ -221,7 +221,7 @@ export function PlanComparison({ className }: { className?: string }) {
       tabIndex={0}
       role="region"
       aria-label="Plan comparison"
-      className={cn("relative overflow-x-auto rounded-xl border border-border bg-surface shadow-xs", className)}
+      className={cn("relative overflow-x-auto rounded-2xl border border-card-edge bg-surface shadow-card", className)}
     >
       <table className="w-full min-w-[520px] border-collapse text-sm">
         <caption className="sr-only">Compare the Free and Pro plans</caption>

@@ -30,7 +30,8 @@ export const clerkAppearance: ClerkAppearance = {
     fontFamilyButtons: "inherit",
     fontSize: "0.875rem",
     fontWeight: { normal: 400, medium: 500, semibold: 600, bold: 600 },
-    borderRadius: "0.375rem",
+    // Inputs get 10px corners; buttons are made capsules below, like the rest of the app.
+    borderRadius: "0.625rem",
   },
   layout: {
     logoPlacement: "none",
@@ -43,17 +44,18 @@ export const clerkAppearance: ClerkAppearance = {
     cardBox: {
       width: "100%",
       maxWidth: "25rem",
-      border: "1px solid var(--border)",
-      borderRadius: "0.75rem",
-      boxShadow: "var(--elevation-xs)",
+      border: "1px solid var(--card-edge)",
+      borderRadius: "1.375rem",
+      boxShadow: "var(--elevation-card)",
     },
     headerTitle: { fontSize: "1.125rem", fontWeight: 600, letterSpacing: "-0.015em" },
     button: { '&[data-variant="solid"]::after': { display: "none" } },
-    formButtonPrimary: { boxShadow: "none" },
+    formButtonPrimary: { boxShadow: "none", borderRadius: "9999px" },
+    socialButtonsBlockButton: { borderRadius: "9999px" },
     providerIcon__github: { ".dark &": { filter: "invert(1)" } },
     providerIcon__apple: { ".dark &": { filter: "invert(1)" } },
     footerActionLink: { color: "var(--accent-text)", fontWeight: 500 },
     userButtonTrigger: { "&:focus-visible": { boxShadow: "0 0 0 2px var(--ring)" } },
-    userButtonPopoverCard: { border: "1px solid var(--border)", boxShadow: "var(--elevation-float)" },
+    userButtonPopoverCard: { border: "1px solid var(--card-edge)", borderRadius: "1rem", boxShadow: "var(--elevation-float)" },
   },
 };

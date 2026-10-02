@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { CONTAINER } from "./layout";
 
 const NAV_LINK =
-  "inline-flex h-8 items-center rounded-md px-2.5 text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground";
+  "inline-flex h-8 items-center rounded-full px-3 text-sm text-muted-foreground transition-colors duration-150 hover:text-foreground";
 
 // Absolute anchors work from every public page; on the home page they only scroll.
 const SECTION_LINKS = [
@@ -16,7 +16,7 @@ const SECTION_LINKS = [
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-sm">
+    <header className="sticky top-0 z-40 border-b border-border/80 bg-background/80 backdrop-blur-xl backdrop-saturate-180">
       <div className={cn(CONTAINER, "flex h-16 items-center gap-4 md:gap-8")}>
         <Link to="/" aria-label="SkillManager home" className="-mx-1 rounded-md px-1 py-1">
           <Logo />
