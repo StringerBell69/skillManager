@@ -167,9 +167,11 @@ export async function installCommand(options: InstallOptions) {
         }
       }
 
+      // Check before writing: afterwards the file always exists.
+      const existed = fs.existsSync(fullPath);
       writeAgentFile(file, agent.slug, rootDir);
 
-      if (fs.existsSync(fullPath)) {
+      if (existed) {
         updated++;
       } else {
         created++;
