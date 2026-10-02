@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
-import { buttonVariants } from "@/components/ui/button";
-import { Seo, SITE_NAME } from "@/components/seo";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { Seo } from "@/components/seo";
+import { SITE_NAME } from "@/lib/site";
 
 export default function NotFound() {
   return (

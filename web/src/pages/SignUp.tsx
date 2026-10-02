@@ -1,12 +1,16 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import { SignUp, useAuth } from "@clerk/clerk-react";
-import { Seo, SITE_NAME } from "@/components/seo";
+import { Seo } from "@/components/seo";
+import { SITE_NAME } from "@/lib/site";
 import { AuthCardSkeleton, AuthPage } from "@/components/auth/auth-page";
+import { safeRedirectPath } from "@/lib/redirect";
 
 export default function SignUpPage() {
   const { isLoaded, isSignedIn } = useAuth();
+  const [params] = useSearchParams();
 
-  if (isLoaded && isSignedIn) return <Navigate to="/dashboard" replace />;
+  // Already signed in: go where Clerk would have sent the user, never off-site.
+  if (isLoaded && isSignedIn) return <Navigate to={safeRedirectPath(params.get("redirect_url"))} replace />;
 
   return (
     <AuthPage footer="The Free plan includes one connected device. No card required.">

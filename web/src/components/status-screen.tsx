@@ -40,7 +40,7 @@ export function StatusScreen({ title, description, tone = "neutral", icon, child
           <div className={cn("mb-5 flex size-10 items-center justify-center rounded-lg", TONES[tone].className)}>
             <Icon className="size-5" aria-hidden />
           </div>
-          <h1 className="text-xl font-semibold tracking-tight text-foreground" tabIndex={-1} data-page-title>
+          <h1 className="text-xl font-semibold tracking-tight text-foreground outline-none" tabIndex={-1} data-page-title>
             {title}
           </h1>
           {description ? <div className="mt-2 text-sm leading-6 text-muted-foreground">{description}</div> : null}

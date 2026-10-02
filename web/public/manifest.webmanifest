@@ -1,0 +1,14 @@
+{
+  "name": "SkillManager",
+  "short_name": "SkillManager",
+  "description": "Install AI agents, skills, and rules into Claude Code, Codex, Cursor, and Gemini CLI.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f7f7f4",
+  "theme_color": "#f7f7f4",
+  "icons": [
+    { "src": "/icon-192.png", "type": "image/png", "sizes": "192x192" },
+    { "src": "/icon-512.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "/icon-mask.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
+  ]
+}

@@ -1,5 +1,4 @@
-export const SITE_NAME = "SkillManager";
-export const SITE_URL = (import.meta.env.VITE_SITE_URL ?? "").replace(/\/+$/, "");
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 interface SeoProps {
   /** Full document title. Pages pass e.g. "Devices | SkillManager". */

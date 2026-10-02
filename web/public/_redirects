@@ -1,0 +1,14 @@
+# Signed-in routes use the client-rendered shell. Unknown paths fall through to 404.html.
+/dashboard    /app.html  200
+/dashboard/*  /app.html  200
+/agents       /app.html  200
+/agents/*     /app.html  200
+/devices      /app.html  200
+/devices/*    /app.html  200
+/billing      /app.html  200
+/billing/*    /app.html  200
+/cli          /app.html  200
+/login        /app.html  200
+/login/*      /app.html  200
+/signup       /app.html  200
+/signup/*     /app.html  200

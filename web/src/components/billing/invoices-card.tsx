@@ -1,0 +1,129 @@
+import { Download } from "lucide-react";
+import type { BillingInvoice } from "@skillmanager/shared/browser";
+import { formatDate } from "@/lib/format";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+
+const STATUS: Record<BillingInvoice["status"], { label: string; variant: "success" | "warning" | "neutral" | "danger" }> = {
+  paid: { label: "Paid", variant: "success" },
+  open: { label: "Open", variant: "warning" },
+  draft: { label: "Draft", variant: "neutral" },
+  void: { label: "Void", variant: "neutral" },
+  uncollectible: { label: "Uncollectible", variant: "danger" },
+};
+
+const HEAD_CELL = "h-9 px-3 font-medium first:pl-5 last:pr-5";
+const CELL = "px-3 first:pl-5 last:pr-5";
+
+function InvoiceRow({ invoice }: { invoice: BillingInvoice }) {
+  const status = STATUS[invoice.status] ?? { label: invoice.status, variant: "neutral" };
+  const reference = invoice.number ?? formatDate(invoice.date);
+
+  return (
+    <tr className="h-12">
+      <td className={cn(CELL, "whitespace-nowrap text-foreground")}>
+        <time dateTime={invoice.date}>{formatDate(invoice.date)}</time>
+      </td>
+      <td className={cn(CELL, "text-muted-foreground")}>
+        <span className="block max-w-[20rem] truncate" title={invoice.description}>
+          {invoice.description}
+        </span>
+      </td>
+      <td className={cn(CELL, "whitespace-nowrap text-right font-medium tabular text-foreground")}>{invoice.amount}</td>
+      <td className={CELL}>
+        <Badge variant={status.variant}>{status.label}</Badge>
+      </td>
+      <td className={cn(CELL, "text-right")}>
+        {invoice.pdfUrl ? (
+          <a
+            href={invoice.pdfUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Download invoice ${reference} as PDF`}
+            className="-mr-2 inline-flex h-8 items-center gap-1.5 rounded-md px-2 font-medium text-accent-text transition-colors duration-150 hover:bg-muted"
+          >
+            <Download className="size-3.5" aria-hidden />
+            PDF
+          </a>
+        ) : (
+          <span className="text-faint-foreground">Not available</span>
+        )}
+      </td>
+    </tr>
+  );
+}
+
+export function InvoicesCard({ invoices }: { invoices: BillingInvoice[] }) {
+  return (
+    <Card aria-labelledby="invoices-title">
+      <CardHeader className="pb-4">
+        <div>
+          <CardTitle id="invoices-title">Invoices</CardTitle>
+          <CardDescription>Your most recent invoices from Stripe.</CardDescription>
+        </div>
+      </CardHeader>
+
+      {invoices.length === 0 ? (
+        <CardContent className="border-t border-border">
+          <p className="text-13 text-muted-foreground">No invoices yet. They appear here after your first payment.</p>
+        </CardContent>
+      ) : (
+        <div className="overflow-x-auto border-t border-border">
+          <table className="w-full min-w-[600px] border-collapse text-left text-13">
+            <caption className="sr-only">Invoices</caption>
+            <thead>
+              <tr className="border-b border-border bg-subtle text-xs text-muted-foreground">
+                <th scope="col" className={HEAD_CELL}>
+                  Date
+                </th>
+                <th scope="col" className={HEAD_CELL}>
+                  Description
+                </th>
+                <th scope="col" className={cn(HEAD_CELL, "text-right")}>
+                  Amount
+                </th>
+                <th scope="col" className={HEAD_CELL}>
+                  Status
+                </th>
+                <th scope="col" className={HEAD_CELL}>
+                  <span className="sr-only">Download</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {invoices.map((invoice) => (
+                <InvoiceRow key={invoice.id} invoice={invoice} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+export function InvoicesCardSkeleton() {
+  return (
+    <Card aria-hidden>
+      <CardHeader className="pb-4">
+        <div className="flex flex-col gap-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-3.5 w-52" />
+        </div>
+      </CardHeader>
+      <div className="border-t border-border">
+        <div className="h-9 border-b border-border bg-subtle" />
+        {[0, 1].map((row) => (
+          <div key={row} className="flex h-12 items-center gap-6 px-5">
+            <Skeleton className="h-3.5 w-20" />
+            <Skeleton className="h-3.5 flex-1" />
+            <Skeleton className="h-3.5 w-16" />
+            <Skeleton className="h-5 w-12 rounded-full" />
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}

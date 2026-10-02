@@ -104,9 +104,12 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       </nav>
       <div className="flex flex-col gap-3">
         <PlanCard />
-        <div className="flex items-center justify-between gap-2 border-t border-border px-1 pt-3">
-          <Account />
+        <div className="flex items-center justify-between gap-2 px-1">
+          <span className="text-xs font-medium text-muted-foreground">Theme</span>
           <ThemeToggle />
+        </div>
+        <div className="border-t border-border px-1 pt-3">
+          <Account />
         </div>
       </div>
     </div>
@@ -152,13 +155,12 @@ function MobileDrawer({ open, onClose }: { open: boolean; onClose: () => void })
 /** Move focus to the new page heading after client-side navigation, so screen readers announce it. */
 function useRouteFocus() {
   const { pathname } = useLocation();
-  const first = useRef(true);
+  // Track the last path rather than a "first run" flag, so StrictMode's double effect does not count as navigation.
+  const previous = useRef(pathname);
 
   useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
+    if (previous.current === pathname) return;
+    previous.current = pathname;
     const heading = document.querySelector<HTMLElement>("[data-page-title]");
     heading?.focus({ preventScroll: true });
     document.getElementById("main")?.scrollTo({ top: 0 });

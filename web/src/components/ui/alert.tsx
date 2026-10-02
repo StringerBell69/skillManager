@@ -3,7 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { CircleAlert, CircleCheck, Info, TriangleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const alertVariants = cva("flex gap-3 rounded-lg border px-4 py-3 text-sm", {
+const alertVariants = cva("flex flex-wrap gap-x-3 gap-y-2 rounded-lg border px-4 py-3 text-sm", {
   variants: {
     tone: {
       info: "border-border bg-subtle text-foreground [&>svg]:text-muted-foreground",
@@ -31,7 +31,8 @@ export function Alert({ tone = "info", title, action, children, className, ...pr
         {title ? <p className="font-medium">{title}</p> : null}
         {children ? <div className="text-muted-foreground">{children}</div> : null}
       </div>
-      {action ? <div className="shrink-0 self-center">{action}</div> : null}
+      {/* Below sm the action wraps under the text, aligned with it, so the message keeps its width. */}
+      {action ? <div className="basis-full pl-7 sm:basis-auto sm:shrink-0 sm:self-center sm:pl-0">{action}</div> : null}
     </div>
   );
 }
