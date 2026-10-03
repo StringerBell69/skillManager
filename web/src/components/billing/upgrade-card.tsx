@@ -11,8 +11,8 @@ type Interval = "month" | "year";
 const FEATURES = [
   "Unlimited connected devices",
   "Every agent, skill, and rule in the catalog, including Pro-only ones",
-  "Monthly or yearly billing",
-  "Cancel anytime from the billing portal",
+  "Pro packs: Ship Safely and Backend Foundations",
+  "Publish agents and earn from usage — coming soon",
 ];
 
 /** Display prices are configured at build time. Without them, Stripe Checkout shows the price. */

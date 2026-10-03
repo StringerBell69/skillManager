@@ -6,6 +6,7 @@ tags:
   - typescript
   - standards
   - code-quality
+planRequired: FREE
 ---
 
 ## TypeScript Standards

@@ -1,12 +1,25 @@
 import { PrismaClient } from "@prisma/client";
-import { createHash } from "crypto";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { parseAgentSource } from "@skillmanager/shared";
 
 const prisma = new PrismaClient();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const AGENTS_DIR = path.resolve(__dirname, "../content/agents");
+const PACKS_FILE = path.resolve(__dirname, "../content/packs/packs.json");
+
+interface PackDef {
+  slug: string;
+  name: string;
+  description: string;
+  planRequired: "FREE" | "PRO" | "TEAM";
+  agentSlugs: string[];
+}
 
 async function main() {
   console.log("🌱 Seeding database...");
 
-  // Create a test user
   const user = await prisma.user.upsert({
     where: { clerkId: "user_test_123" },
     create: {
@@ -24,75 +37,28 @@ async function main() {
 
   console.log(`  ✓ User: ${user.email} (${user.id})`);
 
-  // Create example agents
-  const agents = [
-    {
-      slug: "code-reviewer",
-      name: "code-reviewer",
-      description: "Reviews code for quality, security, and best practices",
-      kind: "agent",
-      planRequired: "FREE" as const,
-      version: "1.0.0",
-      body: "You are a code review expert.\n\nAnalyze the provided code for:\n- Security vulnerabilities\n- Performance issues\n- Code style violations\n- Potential bugs\n\nProvide specific, actionable feedback with line numbers.",
-      frontmatter: {
-        name: "code-reviewer",
-        description: "Reviews code for quality, security, and best practices",
-        kind: "agent",
-        tools: ["read_file", "grep", "list_dir"],
-        tags: ["dev", "quality", "security"],
-        planRequired: "FREE",
-      },
-    },
-    {
-      slug: "api-designer",
-      name: "api-designer",
-      description: "Helps design RESTful and GraphQL APIs following best practices",
-      kind: "skill",
-      planRequired: "PRO" as const,
-      version: "1.0.0",
-      body: "# API Design Skill\n\nGuide the user through designing APIs.\n\n## Steps\n1. Define resources and their relationships\n2. Design endpoint structure\n3. Define request/response schemas\n4. Plan authentication and authorization\n5. Document error handling patterns",
-      frontmatter: {
-        name: "api-designer",
-        description: "Helps design RESTful and GraphQL APIs following best practices",
-        kind: "skill",
-        model: "claude-sonnet-4",
-        tags: ["api", "architecture"],
-        planRequired: "PRO",
-      },
-    },
-    {
-      slug: "typescript-standards",
-      name: "typescript-standards",
-      description: "Enforces TypeScript coding standards and best practices",
-      kind: "rule",
-      planRequired: "FREE" as const,
-      version: "1.0.0",
-      body: "## TypeScript Standards\n\n- Always use `interface` over `type` for object shapes\n- Use strict mode (`\"strict\": true` in tsconfig)\n- Prefer `const` assertions for literal types\n- Use `unknown` instead of `any` wherever possible\n- Always provide explicit return types for public functions\n- Use template literal types for string patterns",
-      frontmatter: {
-        name: "typescript-standards",
-        description: "Enforces TypeScript coding standards and best practices",
-        kind: "rule",
-        tags: ["typescript", "standards"],
-        planRequired: "FREE",
-      },
-    },
-  ];
+  const files = fs.readdirSync(AGENTS_DIR).filter((f) => f.endsWith(".md")).sort();
+  for (const file of files) {
+    const slug = path.basename(file, ".md");
+    const source = fs.readFileSync(path.join(AGENTS_DIR, file), "utf-8");
+    const { frontmatter, body } = parseAgentSource(source);
+    const planRequired = (frontmatter.planRequired ?? "FREE") as "FREE" | "PRO" | "TEAM";
+    const version = "1.0.0";
 
-  for (const agentData of agents) {
     const agent = await prisma.agent.upsert({
-      where: { slug: agentData.slug },
+      where: { slug },
       create: {
-        slug: agentData.slug,
-        name: agentData.name,
-        description: agentData.description,
-        kind: agentData.kind,
-        planRequired: agentData.planRequired,
+        slug,
+        name: frontmatter.name,
+        description: frontmatter.description,
+        kind: frontmatter.kind,
+        planRequired,
       },
       update: {
-        name: agentData.name,
-        description: agentData.description,
-        kind: agentData.kind,
-        planRequired: agentData.planRequired,
+        name: frontmatter.name,
+        description: frontmatter.description,
+        kind: frontmatter.kind,
+        planRequired,
       },
     });
 
@@ -100,38 +66,36 @@ async function main() {
       where: {
         agentId_version: {
           agentId: agent.id,
-          version: agentData.version,
+          version,
         },
       },
       create: {
         agentId: agent.id,
-        version: agentData.version,
-        body: agentData.body,
-        frontmatter: agentData.frontmatter,
+        version,
+        body,
+        frontmatter: frontmatter as object,
         publishedAt: new Date(),
       },
       update: {
-        body: agentData.body,
-        frontmatter: agentData.frontmatter,
+        body,
+        frontmatter: frontmatter as object,
         publishedAt: new Date(),
       },
     });
 
-    console.log(`  ✓ Agent: ${agentData.slug}@${agentData.version}`);
+    console.log(`  ✓ Agent: ${slug}@${version} (${planRequired})`);
   }
 
-  // ── Seed packs ──────────────────────────────────────────────
-  const packs = [
-    {
-      slug: "code-quality",
-      name: "Code Quality",
-      description: "Everything you need for clean, secure, well-typed code",
-      planRequired: "FREE" as const,
-      agentSlugs: ["code-reviewer", "typescript-standards", "api-designer"],
-    },
-  ];
+  const packs = JSON.parse(fs.readFileSync(PACKS_FILE, "utf-8")) as PackDef[];
+
+  // Retire the old Free demo pack if it still exists.
+  await prisma.pack.deleteMany({ where: { slug: "code-quality" } });
 
   for (const packData of packs) {
+    if (packData.planRequired !== "PRO" && packData.planRequired !== "TEAM") {
+      throw new Error(`Pack ${packData.slug} must be PRO or TEAM`);
+    }
+
     const pack = await prisma.pack.upsert({
       where: { slug: packData.slug },
       create: {
@@ -147,32 +111,27 @@ async function main() {
       },
     });
 
-    // Link agents to pack
+    await prisma.packAgent.deleteMany({ where: { packId: pack.id } });
+
     for (let i = 0; i < packData.agentSlugs.length; i++) {
       const agent = await prisma.agent.findUnique({
         where: { slug: packData.agentSlugs[i] },
       });
-      if (!agent) continue;
+      if (!agent) {
+        console.warn(`  ⚠ Agent ${packData.agentSlugs[i]} missing for pack ${packData.slug}`);
+        continue;
+      }
 
-      await prisma.packAgent.upsert({
-        where: {
-          packId_agentId: {
-            packId: pack.id,
-            agentId: agent.id,
-          },
-        },
-        create: {
+      await prisma.packAgent.create({
+        data: {
           packId: pack.id,
           agentId: agent.id,
-          position: i,
-        },
-        update: {
           position: i,
         },
       });
     }
 
-    console.log(`  ✓ Pack: ${packData.name} (${packData.agentSlugs.length} agents)`);
+    console.log(`  ✓ Pack: ${packData.name} (${packData.agentSlugs.length} agents, ${packData.planRequired})`);
   }
 
   console.log("✅ Seed complete!");

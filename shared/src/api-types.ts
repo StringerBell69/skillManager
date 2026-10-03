@@ -182,6 +182,8 @@ export interface PackListItem {
   planRequired: Plan;
   agentCount: number;
   agentSlugs: string[];
+  /** CLI command that installs every agent in this pack. */
+  installCommand: string;
 }
 
 export interface PackBundleResponse {

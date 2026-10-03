@@ -8,6 +8,7 @@ import { MarketingLayout } from "@/components/landing/marketing-layout";
 import { Pricing } from "@/components/landing/pricing";
 import { StructuredData } from "@/components/landing/structured-data";
 import { ToolsSection } from "@/components/landing/tools-section";
+import { HOME_DESCRIPTION, HOME_TITLE } from "@/lib/seo-content";
 
 /*
  * Prerendered at build time and hydrated in the browser, so rendering must be
@@ -17,11 +18,7 @@ import { ToolsSection } from "@/components/landing/tools-section";
 export default function Landing() {
   return (
     <MarketingLayout>
-      <Seo
-        title="SkillManager: AI agents for Claude Code, Codex, and Cursor"
-        description="Install AI agents, skills, and rules into Claude Code, Codex, Cursor, and Gemini CLI with one command. Free plan for one machine, no card required."
-        path="/"
-      />
+      <Seo title={HOME_TITLE} description={HOME_DESCRIPTION} path="/" />
       <StructuredData />
       <Hero />
       <HowItWorks />

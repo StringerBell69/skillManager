@@ -169,7 +169,7 @@ export class MeBillingController {
         kind: agent.kind,
         planRequired: agent.planRequired as Plan,
         latestVersion: agent.versions[0]?.version || "0.0.0",
-        installCommand: `sm install ${agent.slug}`,
+        installCommand: "sm install",
       }));
 
     const packsUnlocked = packs.filter(

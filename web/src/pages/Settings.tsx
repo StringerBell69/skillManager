@@ -54,6 +54,7 @@ export default function Settings() {
       <Section id="settings-account" title="Account">
         {/* Path routing renders Clerk's sub-pages (security, etc.) under /settings/*. */}
         <UserProfile
+          routing="path"
           path="/settings"
           fallback={<ProfileSkeleton />}
           appearance={{

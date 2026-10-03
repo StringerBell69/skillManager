@@ -67,6 +67,7 @@ export class PacksController {
         planRequired: pack.planRequired as any,
         agentCount: pack.agents.length,
         agentSlugs: pack.agents.map((pa) => pa.agent.slug),
+        installCommand: `sm install --pack ${pack.slug}`,
       }));
   }
 

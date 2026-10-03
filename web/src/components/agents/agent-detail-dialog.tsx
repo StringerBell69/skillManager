@@ -61,7 +61,10 @@ export function AgentDetailDialog({ agent, onClose }: AgentDetailDialogProps) {
             <h3 id="agent-commands-title" className="text-13 font-medium text-foreground">
               Commands
             </h3>
-            <p className="text-xs leading-5 text-muted-foreground">Installs everything on your plan, this item included.</p>
+            <p className="text-xs leading-5 text-muted-foreground">
+              Installs everything on your plan, this item included. Prefer a pack? Use{" "}
+              <code className="font-mono">sm install --pack &lt;slug&gt;</code> from the Packs section.
+            </p>
             <Command command="sm install" label="Copy install command" />
             <p className="mt-2 text-xs leading-5 text-muted-foreground">Removes this item from the current project.</p>
             <Command command={`sm remove ${agent.slug}`} label={`Copy remove command for ${agent.slug}`} />

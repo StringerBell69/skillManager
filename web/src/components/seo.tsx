@@ -11,11 +11,16 @@ interface SeoProps {
 
 /**
  * Per-route head tags using React 19's native hoisting. Mount exactly one per
- * page. The landing page is prerendered, so its tags ship in the HTML that
+ * page. Public pages are prerendered, so these tags ship in the HTML that
  * crawlers and link unfurlers read.
  */
 export function Seo({ title, description, path, noindex = false }: SeoProps) {
-  const url = path !== undefined && SITE_URL ? `${SITE_URL}${path}` : undefined;
+  const canonical =
+    path !== undefined && SITE_URL
+      ? path === "/"
+        ? `${SITE_URL}/`
+        : `${SITE_URL}${path}`
+      : undefined;
 
   return (
     <>
@@ -25,10 +30,16 @@ export function Seo({ title, description, path, noindex = false }: SeoProps) {
         <meta name="robots" content="noindex, nofollow" />
       ) : (
         <>
-          {url ? <link rel="canonical" href={url} /> : null}
+          <meta name="robots" content="index, follow, max-image-preview:large" />
+          {canonical ? <link rel="canonical" href={canonical} /> : null}
           <meta property="og:title" content={title} />
           {description ? <meta property="og:description" content={description} /> : null}
-          {url ? <meta property="og:url" content={url} /> : null}
+          {canonical ? <meta property="og:url" content={canonical} /> : null}
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content={SITE_NAME} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={title} />
+          {description ? <meta name="twitter:description" content={description} /> : null}
         </>
       )}
     </>

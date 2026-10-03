@@ -1,0 +1,26 @@
+[
+  {
+    "slug": "ship-safely",
+    "name": "Ship Safely",
+    "description": "Full quality delivery loop: security audit, tests, disciplined debugging, and a review-ready PR",
+    "planRequired": "PRO",
+    "agentSlugs": [
+      "security-auditor",
+      "test-architect",
+      "debug-detective",
+      "git-pr-workflow"
+    ]
+  },
+  {
+    "slug": "backend-foundations",
+    "name": "Backend Foundations",
+    "description": "Design and evolve a solid backend: API design, safe migrations, performance guardrails, and security review",
+    "planRequired": "PRO",
+    "agentSlugs": [
+      "api-designer",
+      "db-migration-planner",
+      "performance-standards",
+      "security-auditor"
+    ]
+  }
+]

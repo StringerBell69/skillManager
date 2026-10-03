@@ -56,10 +56,14 @@ const QUESTIONS: FaqItem[] = [
         <Link to="/billing" className="font-medium text-accent-text underline underline-offset-4">
           Billing
         </Link>{" "}
-        in your dashboard and go to the Stripe billing portal. You can cancel there, change your payment method, and
-        download invoices.
+        in your dashboard and go to the Stripe billing portal to cancel or change your payment method.
       </>
     ),
+  },
+  {
+    question: "Can I publish my own agents?",
+    answer:
+      "Not yet. Publishing agents and earning from their usage is coming soon on Pro. Free stays focused on installing from the catalog.",
   },
 ];
 

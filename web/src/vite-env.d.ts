@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_SITE_URL?: string;
   readonly VITE_PRICE_PRO_MONTHLY?: string;
   readonly VITE_PRICE_PRO_YEARLY?: string;
+  readonly VITE_PUBLIC_POSTHOG_PROJECT_TOKEN?: string;
+  readonly VITE_PUBLIC_POSTHOG_HOST?: string;
 }
 
 interface ImportMeta {

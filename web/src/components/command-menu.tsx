@@ -16,8 +16,10 @@ import {
   Terminal,
   type LucideIcon,
 } from "lucide-react";
-import { useBilling, useBillingPortal, useCatalogAgents } from "@/hooks/useAccount";
+import { useBilling, useBillingPortal, useCatalogAgents, useCatalogPacks } from "@/hooks/useAccount";
 import { useTheme } from "@/lib/theme";
+import { signOutAndGo } from "@/lib/clerk-nav";
+import { track } from "@/lib/posthog";
 import { kindLabel } from "@/components/agents/kinds";
 import { cn } from "@/lib/utils";
 
@@ -69,6 +71,7 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
   const { setPreference } = useTheme();
   const billing = useBilling();
   const agents = useCatalogAgents();
+  const packs = useCatalogPacks();
   const portal = useBillingPortal();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -112,7 +115,10 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
     };
     const copy = (text: string) => () => {
       close();
-      void copyText(text).then((ok) => setToast(ok ? `Copied “${text}”` : "Could not copy. Select the text and copy it manually."));
+      void copyText(text).then((ok) => {
+        if (ok) track("command_copied", { command: text, label: "command_menu" });
+        setToast(ok ? `Copied “${text}”` : "Could not copy. Select the text and copy it manually.");
+      });
     };
     const theme = (value: "light" | "dark" | "system", label: string) => () => {
       close();
@@ -145,6 +151,28 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
       });
     }
 
+    for (const pack of packs.data ?? []) {
+      const installCommand = pack.installCommand || `sm install --pack ${pack.slug}`;
+      list.push({
+        id: `pack-${pack.slug}`,
+        group: "Packs",
+        label: pack.name || pack.slug,
+        icon: Blocks,
+        hint: `${pack.agentCount} agents`,
+        keywords: `${pack.slug} ${pack.description} pack`,
+        run: go("/agents"),
+      });
+      list.push({
+        id: `copy-pack-${pack.slug}`,
+        group: "Copy a command",
+        label: `Install pack ${pack.name || pack.slug}`,
+        icon: Terminal,
+        hint: installCommand,
+        keywords: `${pack.slug} pack install`,
+        run: copy(installCommand),
+      });
+    }
+
     list.push(
       paid
         ? {
@@ -171,12 +199,12 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
         keywords: "log out logout",
         run: () => {
           close();
-          void clerk.signOut({ redirectUrl: "/" });
+          void signOutAndGo(() => clerk.signOut(), navigate, "/");
         },
       },
     );
     return list;
-  }, [agents.data, billing.data, clerk, navigate, onOpenChange, portal, setPreference]);
+  }, [agents.data, billing.data, clerk, navigate, onOpenChange, packs.data, portal, setPreference]);
 
   const visible = actions.filter((action) => matches(action, query.trim()));
   const active = visible[Math.min(activeIndex, visible.length - 1)];

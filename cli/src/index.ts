@@ -31,8 +31,9 @@ program
 
 program
   .command("install")
-  .description("Install agents into your project")
+  .description("Install agents (or a pack) into your project")
   .option("--tools <tools>", "Comma-separated list of tools (claude,codex,cursor,gemini)")
+  .option("--pack <slug>", "Install only the agents in a pack")
   .option("--global", "Install globally instead of per-project")
   .option("--project", "Install in current project (default)")
   .option("--yes", "Skip confirmation prompts")
@@ -49,7 +50,7 @@ program
 
 program
   .command("list")
-  .description("List installed and available agents")
+  .description("List installed agents, available agents, and packs")
   .option("--global", "List global installation")
   .action(listCommand);
 

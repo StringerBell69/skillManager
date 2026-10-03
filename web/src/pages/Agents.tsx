@@ -15,8 +15,9 @@ export default function Agents() {
             title="Agents"
             description={
               <>
-                Everything available on your plan. <InlineCode className="text-13">sm install</InlineCode> adds all of
-                it to your project.
+                Agents and curated packs on your plan.{" "}
+                <InlineCode className="text-13">sm install</InlineCode> adds everything;{" "}
+                <InlineCode className="text-13">sm install --pack &lt;slug&gt;</InlineCode> installs one pack.
               </>
             }
           />

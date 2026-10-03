@@ -39,8 +39,38 @@ for (const route of PUBLIC_ROUTES) {
   console.log(`prerendered ${route}`);
 }
 
-await fs.writeFile(path.join(dist, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: ${SITE}/sitemap.xml\n`);
-const urls = PUBLIC_ROUTES.map((route) => `  <url><loc>${SITE}${route}</loc></url>`).join("\n");
+await fs.writeFile(
+  path.join(dist, "robots.txt"),
+  [
+    "User-agent: *",
+    "Allow: /",
+    "Disallow: /dashboard",
+    "Disallow: /agents",
+    "Disallow: /devices",
+    "Disallow: /billing",
+    "Disallow: /settings",
+    "Disallow: /cli",
+    "Disallow: /login",
+    "Disallow: /signup",
+    "",
+    `Sitemap: ${SITE}/sitemap.xml`,
+    "",
+  ].join("\n"),
+);
+
+const today = new Date().toISOString().slice(0, 10);
+const urls = PUBLIC_ROUTES.map((route) => {
+  const loc = route === "/" ? `${SITE}/` : `${SITE}${route}`;
+  const priority = route === "/" ? "1.0" : "0.8";
+  return [
+    "  <url>",
+    `    <loc>${loc}</loc>`,
+    `    <lastmod>${today}</lastmod>`,
+    "    <changefreq>weekly</changefreq>",
+    `    <priority>${priority}</priority>`,
+    "  </url>",
+  ].join("\n");
+}).join("\n");
 await fs.writeFile(
   path.join(dist, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,

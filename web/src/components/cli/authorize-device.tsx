@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { useApproveCli, useDenyCli } from "@/hooks/useAccount";
+import { signOutAndGo } from "@/lib/clerk-nav";
 import { Button } from "@/components/ui/button";
 import { CliFrame, CliHeading } from "./cli-frame";
 import { DeviceCode } from "./device-code";
@@ -32,6 +34,7 @@ function useFocusHeadingOnChange(key: string) {
 export function AuthorizeDevice({ code }: { code: string }) {
   const { user } = useUser();
   const clerk = useClerk();
+  const navigate = useNavigate();
   const approve = useApproveCli();
   const deny = useDenyCli();
   const [signingOut, setSigningOut] = useState(false);
@@ -49,7 +52,9 @@ export function AuthorizeDevice({ code }: { code: string }) {
 
   const signOut = () => {
     setSigningOut(true);
-    clerk.signOut({ redirectUrl: cliPath(code) }).catch(() => setSigningOut(false));
+    void signOutAndGo(() => clerk.signOut(), navigate, cliPath(code)).catch(() =>
+      setSigningOut(false),
+    );
   };
 
   if (approve.isSuccess) return <ApprovedScreen />;

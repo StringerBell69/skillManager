@@ -3,7 +3,12 @@ import path from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { loadToken, isInteractive } from "../config.js";
-import { getBundle, ApiClientError } from "../api-client.js";
+import {
+  getBundle,
+  getPackBundle,
+  listPacks,
+  ApiClientError,
+} from "../api-client.js";
 import { writeAgentFile, validatePath } from "../file-writer.js";
 import {
   loadManifest,
@@ -11,10 +16,11 @@ import {
   contentHash,
   isFileModified,
 } from "../manifest.js";
-import type { BundleAgent } from "@skillmanager/shared";
+import type { BundleAgent, PackListItem } from "@skillmanager/shared";
 
 interface InstallOptions {
   tools?: string;
+  pack?: string;
   global?: boolean;
   project?: boolean;
   yes?: boolean;
@@ -53,7 +59,6 @@ export async function installCommand(options: InstallOptions) {
   if (options.tools) {
     targets = options.tools.split(",").map((t) => t.trim());
   } else if (isTTY && !options.yes) {
-    // Detect available tools and let user pick
     const detected = detectTools(rootDir);
     const allTools = ["claude", "codex", "cursor", "gemini"];
 
@@ -77,10 +82,63 @@ export async function installCommand(options: InstallOptions) {
     targets = ["claude", "codex", "cursor", "gemini"];
   }
 
-  // Fetch bundle
-  let bundle;
+  // Resolve pack vs full plan
+  let packSlug = options.pack?.trim() || null;
+  let packs: PackListItem[] = [];
+
+  if (!packSlug && isTTY && !options.yes) {
+    try {
+      packs = await listPacks(token);
+    } catch {
+      packs = [];
+    }
+
+    if (packs.length > 0) {
+      const choice = await p.select({
+        message: "What do you want to install?",
+        options: [
+          {
+            value: "__all__",
+            label: "All agents on your plan",
+            hint: "Everything unlocked for your account",
+          },
+          ...packs.map((pack) => ({
+            value: pack.slug,
+            label: pack.name || pack.slug,
+            hint: `${pack.agentCount} agent${pack.agentCount === 1 ? "" : "s"}`,
+          })),
+        ],
+      });
+
+      if (p.isCancel(choice)) {
+        p.cancel("Installation cancelled.");
+        process.exit(0);
+      }
+
+      if (choice !== "__all__") {
+        packSlug = choice as string;
+      }
+    }
+  }
+
+  // Fetch agents (full plan or one pack)
+  let agents: BundleAgent[];
+  let packLabel: string | null = null;
+
   try {
-    bundle = await getBundle(token, targets);
+    if (packSlug) {
+      const packBundle = await getPackBundle(token, packSlug, targets);
+      agents = packBundle.agents;
+      packLabel = packBundle.pack.name || packBundle.pack.slug;
+      if (isTTY) {
+        p.log.info(
+          `Installing pack ${pc.bold(packLabel)} (${agents.length} agent${agents.length === 1 ? "" : "s"})`,
+        );
+      }
+    } else {
+      const bundle = await getBundle(token, targets);
+      agents = bundle.agents;
+    }
   } catch (err) {
     if (err instanceof ApiClientError) {
       if (err.code === "LICENSE_EXPIRED") {
@@ -90,6 +148,19 @@ export async function installCommand(options: InstallOptions) {
           );
         } else {
           console.error("Subscription not active.");
+        }
+      } else if (err.code === "PLAN_INSUFFICIENT") {
+        if (isTTY) p.log.error(err.message);
+        else console.error(err.message);
+      } else if (err.code === "NOT_FOUND") {
+        if (isTTY) {
+          p.log.error(
+            packSlug
+              ? `Pack "${packSlug}" was not found, or is not on your plan.`
+              : err.message,
+          );
+        } else {
+          console.error(err.message);
         }
       } else {
         if (isTTY) p.log.error(err.message);
@@ -101,21 +172,29 @@ export async function installCommand(options: InstallOptions) {
     process.exit(1);
   }
 
-  if (bundle.agents.length === 0) {
-    if (isTTY) p.log.info("No agents available for your plan.");
-    else console.log("No agents available.");
+  if (agents.length === 0) {
+    if (isTTY) {
+      p.log.info(
+        packSlug
+          ? "This pack has no agents available for your plan."
+          : "No agents available for your plan.",
+      );
+    } else {
+      console.log("No agents available.");
+    }
     return;
   }
 
-  // Load existing manifest
   const manifest = loadManifest(isGlobal, rootDir);
 
-  // Dry run mode
   if (options.dryRun) {
     if (isTTY) {
       p.log.info(pc.bold("Dry run (no files will be written):\n"));
+      if (packLabel) {
+        console.log(`  pack: ${packLabel}\n`);
+      }
     }
-    for (const agent of bundle.agents) {
+    for (const agent of agents) {
       for (const file of agent.files) {
         const fullPath = path.resolve(rootDir, file.path);
         const status = fs.existsSync(fullPath) ? pc.yellow("update") : pc.green("create");
@@ -123,24 +202,22 @@ export async function installCommand(options: InstallOptions) {
       }
     }
     if (isTTY) {
-      p.log.info(`\n${bundle.agents.length} agent(s) would be installed.`);
+      p.log.info(`\n${agents.length} agent(s) would be installed.`);
     }
     return;
   }
 
-  // Write files
   let created = 0;
   let updated = 0;
   let skipped = 0;
 
-  for (const agent of bundle.agents) {
+  for (const agent of agents) {
     const existingEntry = manifest.agents.find((a) => a.slug === agent.slug);
 
     for (const file of agent.files) {
-      // Validate path for safety
       try {
         validatePath(file.path, rootDir);
-      } catch (err) {
+      } catch {
         if (isTTY) p.log.warn(`Skipping unsafe path: ${file.path}`);
         skipped++;
         continue;
@@ -149,7 +226,6 @@ export async function installCommand(options: InstallOptions) {
       const fullPath = path.resolve(rootDir, file.path);
       const existingFile = existingEntry?.files.find((f) => f.path === file.path);
 
-      // Check for local modifications
       if (existingFile && !options.force) {
         if (isFileModified(fullPath, existingFile.contentHash)) {
           if (isTTY && !options.yes) {
@@ -167,7 +243,6 @@ export async function installCommand(options: InstallOptions) {
         }
       }
 
-      // Check before writing: afterwards the file always exists.
       const existed = fs.existsSync(fullPath);
       writeAgentFile(file, agent.slug, rootDir);
 
@@ -178,19 +253,21 @@ export async function installCommand(options: InstallOptions) {
       }
     }
 
-    // Update manifest
     updateManifestEntry(manifest, agent);
   }
 
   saveManifest(manifest, isGlobal, rootDir);
 
-  // Summary
   if (isTTY) {
     p.log.success(
       `${pc.bold("Install complete:")}\n` +
         `  ${pc.green(`${created} created`)}  ${pc.yellow(`${updated} updated`)}  ${pc.dim(`${skipped} skipped`)}`,
     );
-    p.outro(pc.green("✓ Agents installed!"));
+    p.outro(
+      pc.green(
+        packLabel ? `✓ Pack "${packLabel}" installed!` : "✓ Agents installed!",
+      ),
+    );
   } else {
     console.log(`Installed: ${created} created, ${updated} updated, ${skipped} skipped`);
   }
@@ -200,10 +277,10 @@ function detectTools(rootDir: string): string[] {
   const detected: string[] = [];
 
   for (const [tool, paths] of Object.entries(TOOL_DETECTORS)) {
-    for (const p of paths) {
-      const resolved = p.startsWith("~/")
-        ? path.join(process.env.HOME || "/", p.slice(2))
-        : path.resolve(rootDir, p);
+    for (const toolPath of paths) {
+      const resolved = toolPath.startsWith("~/")
+        ? path.join(process.env.HOME || "/", toolPath.slice(2))
+        : path.resolve(rootDir, toolPath);
       if (fs.existsSync(resolved)) {
         detected.push(tool);
         break;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { RedirectToSignIn, UserButton, useAuth, useUser } from "@clerk/clerk-react";
+import { Link, NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
+import { UserButton, useAuth, useUser } from "@clerk/clerk-react";
 import { Blocks, CreditCard, LayoutGrid, MonitorSmartphone, Search, Settings, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { planLabel } from "@/lib/format";
@@ -220,12 +220,20 @@ function useRouteFocus() {
 
 export default function AppShell() {
   const { isLoaded, isSignedIn } = useAuth();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
   useRouteFocus();
 
   if (!isLoaded) return <FullPageSpinner />;
-  // Sends the visitor to /login with a redirect_url back to this page.
-  if (!isSignedIn) return <RedirectToSignIn />;
+  if (!isSignedIn) {
+    const redirect = `${location.pathname}${location.search}`;
+    return (
+      <Navigate
+        to={`/login?redirect_url=${encodeURIComponent(redirect)}`}
+        replace
+      />
+    );
+  }
 
   return (
     <div className="min-h-dvh bg-background">

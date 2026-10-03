@@ -24,7 +24,7 @@ const ITEMS: Item[] = [
   { slug: "typescript-standards", kind: "Rule", version: "1.0.0" },
 ];
 
-const LOCKED: Item = { slug: "api-designer", kind: "Skill", version: "1.0.0" };
+const LOCKED: Item = { slug: "security-auditor", kind: "Agent", version: "1.0.0" };
 
 const KIND_ICON: Record<Kind, LucideIcon> = { Agent: Bot, Skill: Wrench, Rule: ScrollText };
 
@@ -349,7 +349,7 @@ export function InstallFlow({ className }: { className?: string }) {
         Running sm install and keeping all four tools selected installs the two Free items, code-reviewer and
         typescript-standards. Claude Code gets .claude/agents/code-reviewer.md and .claude/rules/typescript-standards.md,
         Cursor gets two .mdc files in .cursor/rules, and Codex and Gemini CLI each get two marked sections in AGENTS.md and
-        GEMINI.md. The CLI reports 6 created, 2 updated, 0 skipped. api-designer needs the Pro plan.
+        GEMINI.md. The CLI reports 6 created, 2 updated, 0 skipped. security-auditor needs the Pro plan.
       </p>
 
       <div

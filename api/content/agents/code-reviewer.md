@@ -10,6 +10,7 @@ tags:
   - dev
   - quality
   - security
+planRequired: FREE
 ---
 
 # Code Reviewer

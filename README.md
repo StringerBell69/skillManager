@@ -131,15 +131,16 @@ The build writes `dist/index.html` and `dist/pricing/index.html` (prerendered pu
 | `sm login` | Login via device flow |
 | `sm logout` | Remove saved token |
 | `sm whoami` | Show email, plan, status |
-| `sm install` | Install agents into project |
+| `sm install` | Install agents (or a pack) into project |
 | `sm update` | Update agents to latest versions |
-| `sm list` | List installed & available agents |
+| `sm list` | List installed agents, available agents, and packs |
 | `sm remove <slug>` | Remove an installed agent |
 
 ### Install Options
 
 ```bash
 sm install --tools claude,codex    # Specific tools only
+sm install --pack code-quality     # Install one curated pack
 sm install --global                 # Install globally (~/)
 sm install --dry-run                # Preview without writing
 sm install --yes                    # Skip prompts
@@ -165,6 +166,8 @@ sm install --force                  # Overwrite local changes
 | POST | `/v1/cli/auth/deny` | Clerk JWT | Deny device |
 | GET | `/v1/me` | CLI Token | User info |
 | GET | `/v1/bundle` | CLI Token | Download agents |
+| GET | `/v1/packs` | CLI Token | List packs on the user's plan |
+| GET | `/v1/packs/:slug/bundle` | CLI Token | Download agents for one pack |
 | GET | `/v1/me/devices` | Clerk JWT | List devices |
 | DELETE | `/v1/me/devices/:id` | Clerk JWT | Revoke device |
 | GET | `/v1/me/billing` | Clerk JWT | Plan, usage, and invoices |

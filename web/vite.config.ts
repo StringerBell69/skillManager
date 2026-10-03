@@ -3,6 +3,10 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
 
+const root = import.meta.dirname;
+const reactPkg = path.resolve(root, "node_modules/react");
+const reactDomPkg = path.resolve(root, "node_modules/react-dom");
+
 /** Canonical URLs, Open Graph tags, and the sitemap all need the real public origin. */
 function requireSiteUrl(): Plugin {
   return {
@@ -30,8 +34,17 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "./src"),
+      "@": path.resolve(root, "./src"),
+      // Workspace hoist can put a second React at the monorepo root; pin one copy.
+      react: reactPkg,
+      "react-dom": reactDomPkg,
+      "react/jsx-runtime": path.resolve(reactPkg, "jsx-runtime.js"),
+      "react/jsx-dev-runtime": path.resolve(reactPkg, "jsx-dev-runtime.js"),
     },
-    dedupe: ["react", "react-dom"],
+    dedupe: ["react", "react-dom", "react-router", "react-router-dom"],
+  },
+  // Bundle the router into the prerender entry so it shares the same React instance.
+  ssr: {
+    noExternal: ["react-router", "react-router-dom"],
   },
 });
