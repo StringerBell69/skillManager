@@ -27,7 +27,7 @@ const STEPS: Step[] = [
   },
   {
     title: "Install your agents",
-    body: "Run this inside a project to add every agent on your plan to your coding tools.",
+    body: "Run this inside a project to add every agent on your plan. Use sm install --pack <slug> for a curated pack instead.",
     command: "sm install",
     copyLabel: "Copy agent install command",
   },
@@ -53,7 +53,8 @@ export function SetupCard({ connected, loading = false }: SetupCardProps) {
           </div>
         ) : connected ? (
           <CardDescription>
-            Your CLI is connected. Run <InlineCode>sm install</InlineCode> in a project to add your agents.
+            Your CLI is connected. Run <InlineCode>sm install</InlineCode> for everything on your plan, or{" "}
+            <InlineCode>sm install --pack &lt;slug&gt;</InlineCode> for a pack.
           </CardDescription>
         ) : (
           <CardDescription>Three commands connect your terminal to this account and install your agents.</CardDescription>

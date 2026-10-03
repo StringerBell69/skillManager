@@ -4,9 +4,11 @@ import { useBilling, useCatalogPacks } from "@/hooks/useAccount";
 import { planLabel, pluralize } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Command } from "@/components/ui/command";
 import { Skeleton } from "@/components/ui/skeleton";
 import { QueryError } from "@/components/overview/query-error";
 import { TextLink } from "@/components/overview/text-link";
+import { InlineCode } from "./inline-code";
 
 const MAX_CHIPS = 6;
 const GRID = "grid gap-6 sm:grid-cols-2 lg:grid-cols-3";
@@ -16,6 +18,7 @@ function PackCard({ pack, userPlan }: { pack: PackListItem; userPlan: Plan | nul
   const total = Math.max(pack.agentCount, pack.agentSlugs.length);
   const shown = pack.agentSlugs.slice(0, MAX_CHIPS);
   const hidden = total - shown.length;
+  const installCommand = pack.installCommand || `sm install --pack ${pack.slug}`;
 
   return (
     <Card className="flex h-full flex-col p-5">
@@ -44,6 +47,13 @@ function PackCard({ pack, userPlan }: { pack: PackListItem; userPlan: Plan | nul
             {hidden > 0 ? <li className="px-1 py-0.5 text-xs text-faint-foreground tabular">+{hidden} more</li> : null}
           </ul>
         ) : null}
+        {included !== false ? (
+          <Command
+            command={installCommand}
+            label={`Copy install command for ${pack.name || pack.slug}`}
+            className="mt-4"
+          />
+        ) : null}
       </div>
     </Card>
   );
@@ -67,6 +77,7 @@ function PacksSkeleton() {
             <Skeleton className="h-5 w-16" />
             <Skeleton className="h-5 w-24" />
           </div>
+          <Skeleton className="mt-4 h-10 w-full rounded-lg" />
         </Card>
       ))}
     </div>
@@ -88,7 +99,8 @@ export function PacksSection() {
           Packs
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Curated groups of agents. Packs marked Included are part of your plan.
+          Curated groups of agents. Install a pack with <InlineCode>sm install --pack &lt;slug&gt;</InlineCode>, or
+          everything on your plan with <InlineCode>sm install</InlineCode>.
         </p>
       </div>
 

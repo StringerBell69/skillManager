@@ -7,6 +7,7 @@ import type {
   UnlockedAgent,
 } from "@skillmanager/shared/browser";
 import type { ApiError } from "@/lib/api";
+import { track } from "@/lib/posthog";
 import { useApi } from "./useApi";
 import { queryKeys } from "./queryKeys";
 
@@ -59,6 +60,9 @@ export function useRevokeDevice() {
   return useMutation<{ revoked: boolean }, ApiError, string>({
     mutationFn: (deviceId) =>
       api(`/v1/me/devices/${encodeURIComponent(deviceId)}`, { method: "DELETE" }),
+    onSuccess: (_data, deviceId) => {
+      track("device_revoked", { device_id: deviceId });
+    },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.devices });
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing });
@@ -78,8 +82,12 @@ export function useCheckout() {
   const api = useApi();
   return useMutation<{ url: string }, ApiError, CheckoutInput>({
     mutationFn: (input) => api("/v1/me/billing/checkout", { method: "POST", json: input }),
-    onSuccess: ({ url }) => {
+    onSuccess: ({ url }, input) => {
+      track("checkout_started", { plan: input.plan, interval: input.interval });
       window.location.assign(url);
+    },
+    onError: (error) => {
+      track("checkout_failed", { code: error.code });
     },
   });
 }
@@ -89,6 +97,7 @@ export function useBillingPortal() {
   return useMutation<{ url: string }, ApiError, void>({
     mutationFn: () => api("/v1/me/billing/portal", { method: "POST" }),
     onSuccess: ({ url }) => {
+      track("billing_portal_opened");
       window.location.assign(url);
     },
   });
@@ -101,8 +110,12 @@ export function useApproveCli() {
   return useMutation<{ approved: boolean }, ApiError, string>({
     mutationFn: (userCode) => api("/v1/cli/auth/approve", { method: "POST", json: { userCode } }),
     onSuccess: () => {
+      track("cli_device_approved");
       void queryClient.invalidateQueries({ queryKey: queryKeys.devices });
       void queryClient.invalidateQueries({ queryKey: queryKeys.billing });
+    },
+    onError: (error) => {
+      track("cli_device_approve_failed", { code: error.code });
     },
   });
 }
@@ -111,5 +124,8 @@ export function useDenyCli() {
   const api = useApi();
   return useMutation<{ denied: boolean }, ApiError, string>({
     mutationFn: (userCode) => api("/v1/cli/auth/deny", { method: "POST", json: { userCode } }),
+    onSuccess: () => {
+      track("cli_device_denied");
+    },
   });
 }

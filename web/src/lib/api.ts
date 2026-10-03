@@ -16,7 +16,10 @@ export class ApiError extends Error {
   }
 }
 
-export const API_URL = (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/+$/, "");
+export const API_URL = (
+  import.meta.env.VITE_API_URL ||
+  "https://skillmanager-production-567f.up.railway.app"
+).replace(/\/+$/, "");
 
 export type TokenGetter = () => Promise<string | null>;
 

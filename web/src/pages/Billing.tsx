@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useBilling, useBillingPortal } from "@/hooks/useAccount";
 import { planLabel } from "@/lib/format";
+import { track } from "@/lib/posthog";
 import { AppSeo } from "@/components/seo";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,13 @@ export default function Billing() {
   const [awaitingActivation] = useState(() => checkoutParam === "success");
   const data = billing.data;
   const timedOut = useActivationPolling(awaitingActivation && data?.plan === "FREE", billing.refetch);
+  const trackedReturn = useRef(false);
+
+  useEffect(() => {
+    if (!checkoutResult || trackedReturn.current) return;
+    trackedReturn.current = true;
+    track("checkout_returned", { result: checkoutResult });
+  }, [checkoutResult]);
 
   const dismissCheckout = () => {
     setSearchParams(

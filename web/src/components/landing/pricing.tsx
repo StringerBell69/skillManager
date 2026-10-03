@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { Card } from "@/components/ui/card";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { track } from "@/lib/posthog";
 import { cn } from "@/lib/utils";
 import { Section, SectionHeading } from "./layout";
 
@@ -25,16 +26,16 @@ const SHOW_PRICES = PRO_PRICES.month !== null && PRO_PRICES.year !== null;
 
 const FREE_FEATURES = [
   "1 connected device",
-  "The Free agents, skills, and rules",
+  "The Free agents, skills, and rules — generous catalog",
   "Claude Code, Codex, Cursor, and Gemini CLI",
-  "Device list and revoke in the dashboard",
+  "Install, update, and remove from the CLI",
 ];
 
 const PRO_FEATURES = [
   "Unlimited connected devices",
   "Every agent, skill, and rule, including Pro-only ones",
-  "Claude Code, Codex, Cursor, and Gemini CLI",
-  "Invoices and payment method in the Stripe billing portal",
+  "Pro packs (Ship Safely, Backend Foundations)",
+  "Publish agents and earn from usage — coming soon",
 ];
 
 function FeatureList({ items }: { items: string[] }) {
@@ -111,7 +112,11 @@ export function PlanCards({ className, heading = "h3" }: { className?: string; h
           heading={heading}
           price={<p className="text-sm text-muted-foreground">No card required</p>}
           action={
-            <Link to="/signup" className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full")}>
+            <Link
+              to="/signup"
+              className={cn(buttonVariants({ variant: "secondary", size: "lg" }), "w-full")}
+              onClick={() => track("signup_cta_clicked", { source: "pricing_free" })}
+            >
               Create free account
             </Link>
           }
@@ -137,12 +142,16 @@ export function PlanCards({ className, heading = "h3" }: { className?: string; h
                 ]}
               />
             ) : (
-              <Badge variant="accent">Unlimited machines</Badge>
+              <Badge variant="accent">Publish & earn — coming soon</Badge>
             )
           }
           price={<ProPrice interval={billingInterval} />}
           action={
-            <Link to="/billing" className={cn(buttonVariants({ variant: "accent", size: "lg" }), "w-full")}>
+            <Link
+              to="/billing"
+              className={cn(buttonVariants({ variant: "accent", size: "lg" }), "w-full")}
+              onClick={() => track("upgrade_cta_clicked", { source: "pricing_pro", interval: billingInterval })}
+            >
               Upgrade to Pro
             </Link>
           }
@@ -175,6 +184,15 @@ const COMPARISON: Array<{ group: string; rows: Array<{ label: string; free: Cell
     rows: [
       { label: "Free agents, skills, and rules", free: true, pro: true },
       { label: "Pro-only agents, skills, and rules", free: false, pro: true },
+      { label: "Installable packs", free: false, pro: true },
+    ],
+  },
+  {
+    group: "Publish",
+    rows: [
+      { label: "Publish agents to the catalog", free: false, pro: "Coming soon" },
+      { label: "Earn from agent usage", free: false, pro: "Coming soon" },
+      { label: "Publisher analytics", free: false, pro: "Coming soon" },
     ],
   },
   {
@@ -182,14 +200,6 @@ const COMPARISON: Array<{ group: string; rows: Array<{ label: string; free: Cell
     rows: [
       { label: "Claude Code and Cursor (own files)", free: true, pro: true },
       { label: "Codex and Gemini CLI (marked sections)", free: true, pro: true },
-    ],
-  },
-  {
-    group: "Account",
-    rows: [
-      { label: "Device list and revoke in the dashboard", free: true, pro: true },
-      { label: "Billing", free: "No card required", pro: "Monthly or yearly" },
-      { label: "Invoices and payment method", free: false, pro: "Stripe billing portal" },
     ],
   },
 ];
@@ -270,7 +280,8 @@ export function Pricing() {
     <Section id="pricing" labelledBy="pricing-title">
       <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <SectionHeading id="pricing-title" title="Free for one machine. Pro for all of them.">
-          Start on Free with one machine. Upgrade when you add more machines or want the Pro-only agents in the catalog.
+          Start on Free with a generous catalog. Upgrade for unlimited machines, Pro-only agents, and — soon — publish
+          and earn from your own agents.
         </SectionHeading>
         <Link
           to="/pricing"
@@ -282,7 +293,13 @@ export function Pricing() {
       </div>
 
       <PlanCards className="mt-12 lg:mt-14" />
-      <PlanComparison className="mt-10" />
+
+      <div className="mt-14 sm:mt-16">
+        <SectionHeading id="compare-plans-title" title="Compare plans">
+          Side-by-side Free vs Pro: devices, catalog, and publishing.
+        </SectionHeading>
+        <PlanComparison className="mt-8" />
+      </div>
     </Section>
   );
 }

@@ -16,7 +16,7 @@ export default function Dashboard() {
     <>
       <AppSeo title="Overview" />
       <div className="flex flex-col gap-8">
-        <PageHeader title="Overview" description="Your plan, connected devices, and agents." />
+        <PageHeader title="Overview" description="Your plan, connected devices, agents, and packs." />
 
         {billing.data ? (
           <>

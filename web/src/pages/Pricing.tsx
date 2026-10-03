@@ -4,6 +4,7 @@ import { FaqList, type FaqItem } from "@/components/landing/faq";
 import { MarketingLayout } from "@/components/landing/marketing-layout";
 import { PlanCards, PlanComparison } from "@/components/landing/pricing";
 import { Seo } from "@/components/seo";
+import { PRICING_DESCRIPTION, PRICING_TITLE } from "@/lib/seo-content";
 
 const BILLING_FAQ: FaqItem[] = [
   {
@@ -19,11 +20,12 @@ const BILLING_FAQ: FaqItem[] = [
   {
     question: "How do I change my payment method or cancel?",
     answer:
-      "Open Billing in the dashboard and choose Manage subscription. It opens the Stripe billing portal, where you can update your card, download invoices, and cancel.",
+      "Open Billing in the dashboard and choose Manage subscription. It opens the Stripe billing portal, where you can update your card or cancel.",
   },
   {
     question: "Where are my invoices?",
-    answer: "Your recent invoices are listed on the Billing page with a PDF link for each, and all of them are in the Stripe billing portal.",
+    answer:
+      "After you subscribe, Stripe generates a PDF for each payment. Recent ones are listed on the Billing page; the full history is in the Stripe billing portal. Invoices are receipts, not a Free vs Pro feature.",
   },
   {
     question: "Does SkillManager store my card details?",
@@ -39,6 +41,11 @@ const BILLING_FAQ: FaqItem[] = [
     ),
   },
   {
+    question: "Can I publish my own agents?",
+    answer:
+      "Not yet. Publishing agents and earning from their usage is coming soon on Pro. Free stays focused on installing from the catalog.",
+  },
+  {
     question: "What does Team include?",
     answer: "Team is not available yet.",
   },
@@ -47,11 +54,7 @@ const BILLING_FAQ: FaqItem[] = [
 export default function PricingPage() {
   return (
     <MarketingLayout>
-      <Seo
-        title="Pricing | SkillManager"
-        description="Free covers one machine and the Free catalog. Pro adds unlimited machines and every agent, skill, and rule. No card required to start."
-        path="/pricing"
-      />
+      <Seo title={PRICING_TITLE} description={PRICING_DESCRIPTION} path="/pricing" />
 
       <section aria-labelledby="pricing-page-title" className="pb-20 pt-12 sm:pb-24 sm:pt-20">
         <div className={CONTAINER}>
@@ -59,11 +62,11 @@ export default function PricingPage() {
             id="pricing-page-title"
             className="max-w-[18ch] text-[40px] font-semibold leading-[1.05] tracking-[-0.035em] text-foreground sm:text-[56px]"
           >
-            Start free. Upgrade when you add a machine.
+            Start free. Upgrade when you outgrow one machine.
           </h1>
           <p className="mt-6 max-w-[56ch] text-base leading-7 text-muted-foreground sm:text-[17px]">
-            Free covers one machine and the Free catalog. Pro adds unlimited machines and every agent, skill, and rule in
-            the catalog.
+            Free covers one machine and a generous catalog. Pro adds unlimited machines, every agent, and — soon —
+            publish and earn from your own agents.
           </p>
           <PlanCards className="mt-12 sm:mt-14" heading="h2" />
         </div>

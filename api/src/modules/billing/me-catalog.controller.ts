@@ -11,17 +11,7 @@ export class MeCatalogController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get("packs")
-  async listPacks(
-    @CurrentUser() user: { clerkId: string },
-  ): Promise<PackListItem[]> {
-    const dbUser = await this.prisma.user.findUnique({
-      where: { clerkId: user.clerkId },
-      include: { subscription: true },
-    });
-
-    const userPlan = (dbUser?.subscription?.plan as Plan) || "FREE";
-    const userPlanLevel = PLAN_HIERARCHY[userPlan] ?? 0;
-
+  async listPacks(): Promise<PackListItem[]> {
     const packs = await this.prisma.pack.findMany({
       include: {
         agents: {
@@ -32,21 +22,15 @@ export class MeCatalogController {
       orderBy: { name: "asc" },
     });
 
-    return packs.map((pack) => {
-      const packPlanLevel = PLAN_HIERARCHY[pack.planRequired as Plan] ?? 0;
-      const unlocked = packPlanLevel <= userPlanLevel;
-
-      return {
-        slug: pack.slug,
-        name: pack.name,
-        description: pack.description,
-        planRequired: pack.planRequired as Plan,
-        agentCount: pack.agents.length,
-        agentSlugs: pack.agents.map((pa) => pa.agent.slug),
-        // Keep payload compatible; unlocked is inferred by planRequired on the client
-        ...(unlocked ? {} : {}),
-      };
-    });
+    return packs.map((pack) => ({
+      slug: pack.slug,
+      name: pack.name,
+      description: pack.description,
+      planRequired: pack.planRequired as Plan,
+      agentCount: pack.agents.length,
+      agentSlugs: pack.agents.map((pa) => pa.agent.slug),
+      installCommand: `sm install --pack ${pack.slug}`,
+    }));
   }
 
   @Get("agents")
@@ -84,7 +68,7 @@ export class MeCatalogController {
         kind: agent.kind,
         planRequired: agent.planRequired as Plan,
         latestVersion: agent.versions[0]?.version || "0.0.0",
-        installCommand: `sm install ${agent.slug}`,
+        installCommand: "sm install",
       }));
   }
 }

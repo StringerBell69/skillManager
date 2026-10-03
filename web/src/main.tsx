@@ -1,15 +1,23 @@
 import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
+import { PostHogErrorBoundary, PostHogProvider } from "@posthog/react";
+import { initPostHog, posthog } from "@/lib/posthog";
 import AppRoutes from "./AppRoutes";
 import "./fonts.css";
 import "./index.css";
 
+initPostHog();
+
 const app = (
   <StrictMode>
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <PostHogProvider client={posthog}>
+      <PostHogErrorBoundary>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </PostHogErrorBoundary>
+    </PostHogProvider>
   </StrictMode>
 );
 

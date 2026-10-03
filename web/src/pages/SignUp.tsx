@@ -8,14 +8,23 @@ import { safeRedirectPath } from "@/lib/redirect";
 export default function SignUpPage() {
   const { isLoaded, isSignedIn } = useAuth();
   const [params] = useSearchParams();
+  const redirectTo = safeRedirectPath(params.get("redirect_url"));
 
-  // Already signed in: go where Clerk would have sent the user, never off-site.
-  if (isLoaded && isSignedIn) return <Navigate to={safeRedirectPath(params.get("redirect_url"))} replace />;
+  if (isLoaded && isSignedIn) {
+    return <Navigate to={redirectTo} replace />;
+  }
 
   return (
     <AuthPage footer="The Free plan includes one connected device. No card required.">
       <Seo title={`Create your account | ${SITE_NAME}`} noindex />
-      <SignUp path="/signup" signInUrl="/login" fallback={<AuthCardSkeleton />} />
+      <SignUp
+        routing="path"
+        path="/signup"
+        signInUrl="/login"
+        fallbackRedirectUrl={redirectTo}
+        signInFallbackRedirectUrl={redirectTo}
+        fallback={<AuthCardSkeleton />}
+      />
     </AuthPage>
   );
 }

@@ -13,13 +13,13 @@ export function Hero() {
             id="hero-title"
             className="text-[40px] font-semibold leading-[1.03] tracking-[-0.035em] text-foreground sm:text-[56px] lg:col-span-7 lg:text-[64px]"
           >
-            Install your AI agents in Claude Code, Codex, Cursor, and Gemini CLI.
+            SkillManager installs AI agents in Claude Code, Codex, Cursor, and Gemini CLI.
           </h1>
 
           <div className="lg:col-span-5 lg:pb-1.5">
             <p className="max-w-[52ch] text-base leading-7 text-muted-foreground sm:text-[17px]">
-              SkillManager keeps one catalog of agents, skills, and rules, and writes each one where your tools read it.
-              Sign in once, run <Code>sm install</Code>, and stay current with <Code>sm update</Code>.
+              One catalog of agents, skills, and rules, written where each tool reads it. Sign in once, run{" "}
+              <Code>sm install</Code>, and stay current with <Code>sm update</Code>.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Link to="/signup" className={buttonVariants({ variant: "primary", size: "lg" })}>

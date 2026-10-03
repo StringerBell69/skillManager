@@ -179,6 +179,8 @@ export class StripeBillingService {
     const webUrl = this.config.getOrThrow("WEB_URL");
     const waivedAtIso = waivedAt.toISOString();
 
+    // Subscription Checkout creates Stripe invoices automatically (PDF + hosted
+    // invoice page). We surface those in /billing; we do not issue custom PDFs.
     const session = await this.stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
@@ -186,6 +188,12 @@ export class StripeBillingService {
       success_url: `${webUrl}/billing?checkout=success`,
       cancel_url: `${webUrl}/billing?checkout=cancel`,
       client_reference_id: dbUser.id,
+      billing_address_collection: "required",
+      tax_id_collection: { enabled: true },
+      customer_update: {
+        address: "auto",
+        name: "auto",
+      },
       metadata: {
         userId: dbUser.id,
         clerkId: dbUser.clerkId,

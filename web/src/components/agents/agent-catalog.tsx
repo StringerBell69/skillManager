@@ -4,6 +4,7 @@ import { Blocks, ChevronRight, Search, SearchX } from "lucide-react";
 import type { UnlockedAgent } from "@skillmanager/shared/browser";
 import { useBilling, useCatalogAgents } from "@/hooks/useAccount";
 import { pluralize } from "@/lib/format";
+import { track } from "@/lib/posthog";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -104,8 +105,17 @@ export function AgentCatalog() {
   const openAgent = agents.data?.find((agent) => agent.slug === openSlug) ?? null;
   const setOpenSlug = (slug: string | null) => {
     const next = new URLSearchParams(params);
-    if (slug) next.set("agent", slug);
-    else next.delete("agent");
+    if (slug) {
+      const agent = agents.data?.find((item) => item.slug === slug);
+      track("agent_viewed", {
+        slug,
+        kind: agent?.kind,
+        plan_required: agent?.planRequired,
+      });
+      next.set("agent", slug);
+    } else {
+      next.delete("agent");
+    }
     setParams(next, { replace: slug === null });
   };
 

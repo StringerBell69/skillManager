@@ -4,6 +4,8 @@ import type {
   DeviceFlowPollResponse,
   MeResponse,
   BundleResponse,
+  PackListItem,
+  PackBundleResponse,
 } from "@skillmanager/shared";
 import { API_URL, loadToken } from "./config.js";
 
@@ -89,6 +91,22 @@ export async function getBundle(token: string, targets: string[], since?: string
   return request<BundleResponse>("GET", `/v1/bundle${query ? `?${query}` : ""}`, {
     token,
   });
+}
+
+export async function listPacks(token: string) {
+  return request<PackListItem[]>("GET", "/v1/packs", { token });
+}
+
+export async function getPackBundle(token: string, slug: string, targets: string[]) {
+  const params = new URLSearchParams();
+  if (targets.length) params.set("targets", targets.join(","));
+
+  const query = params.toString();
+  return request<PackBundleResponse>(
+    "GET",
+    `/v1/packs/${encodeURIComponent(slug)}/bundle${query ? `?${query}` : ""}`,
+    { token },
+  );
 }
 
 export { ApiClientError };

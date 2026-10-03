@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
+import { track } from "@/lib/posthog";
 import { cn } from "@/lib/utils";
 
 async function writeClipboard(text: string): Promise<boolean> {
@@ -36,6 +37,7 @@ export function CopyButton({ value, label = "Copy to clipboard", className }: Co
 
   const onCopy = async () => {
     if (!(await writeClipboard(value))) return;
+    track("command_copied", { command: value, label });
     setCopied(true);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setCopied(false), 1600);

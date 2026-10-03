@@ -1,6 +1,6 @@
 {
   "name": "@skillmanager/shared",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Shared types, adapters, and utilities for SkillManager",
   "type": "module",
   "main": "./dist/index.cjs",
